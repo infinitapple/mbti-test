@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="일상 속 20가지 선택으로 알아보는 나의 MBTI 성향.">
+<title>나의 결 · MBTI 테스트</title>
+<style>
+:root{color-scheme:light;--ink:#172b27;--mute:#4c6057;--paper:#f5f7ef;--line:#d5ded1;--green:#174d3d;--lime:#e6f288;font:100%/1.65 system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink)}
+.shell{width:min(1020px,calc(100% - 40px));margin:auto}
+header{display:flex;justify-content:space-between;align-items:center;padding:24px 0;border-bottom:1px solid var(--line)}
+.brand{font-size:1.25rem;font-weight:850;letter-spacing:-.07em}
+.chip{color:var(--green);border:1px solid var(--line);border-radius:100px;padding:4px 12px;font-size:.875rem;font-weight:650}
+main{padding:clamp(32px,6vw,72px) 0}
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:36px;align-items:center}
+h1,h2,p{margin:0}
+h1{font-size:clamp(2.6rem,6.7vw,5.4rem);line-height:1.08;letter-spacing:-.09em;margin:12px 0 24px;word-break:keep-all}
+h1 em{color:var(--green);font-style:normal}
+h2{font-size:clamp(1.65rem,5vw,2.35rem);line-height:1.24;letter-spacing:-.06em;word-break:keep-all;margin:12px 0 20px}
+.eyebrow{color:var(--green);font-weight:750;letter-spacing:.05em}
+.intro{color:var(--mute);max-width:31em;word-break:keep-all}
+.facts{margin:24px 0;color:var(--mute);font-weight:650}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:13px 22px;font-weight:750;background:var(--green);color:white}
+button:hover{background:#22664f}
+button:focus-visible,h1:focus-visible,h2:focus-visible{outline:3px solid #658601;outline-offset:4px}
+button:disabled{opacity:.44;cursor:default}
+.secondary{background:transparent;color:var(--green);border:1px solid var(--line)}
+.secondary:hover{background:#e4ede0}
+.art{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:22px;border-radius:28px;background:#183e33}
+.tile{display:grid;place-items:center;aspect-ratio:1;border-radius:50% 50% 12% 50%;font-size:clamp(2.25rem,7vw,5rem);font-weight:850;line-height:1}
+.tile:nth-child(1){background:#e6f288;transform:rotate(-8deg)}
+.tile:nth-child(2){background:#a9d4bc;border-radius:50% 12% 50% 50%;transform:rotate(8deg)}
+.tile:nth-child(3){background:#f4cdaa;border-radius:50% 50% 50% 12%;transform:rotate(8deg)}
+.tile:nth-child(4){background:#ced1f0;border-radius:12% 50% 50% 50%;transform:rotate(-8deg)}
+.card{max-width:680px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:24px;padding:clamp(22px,5vw,48px)}
+.counter{display:flex;justify-content:space-between;gap:12px;color:var(--mute);font-weight:650}
+progress{appearance:none;width:100%;height:8px;border:0;border-radius:8px;overflow:hidden;background:#e7ede2;margin:10px 0 23px}
+progress::-webkit-progress-bar{background:#e7ede2}
+progress::-webkit-progress-value{background:var(--green)}
+progress::-moz-progress-bar{background:var(--green)}
+.options,.axes{display:grid;gap:10px}
+.option{text-align:left;background:#f5f7ef;color:var(--ink);border:1px solid var(--line);font-weight:650}
+.option:hover,.option[aria-pressed=true]{background:#e6f288;border-color:#778d34}
+.actions{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:24px}
+.type{font-size:clamp(3rem,12vw,6rem);font-weight:900;letter-spacing:-.08em;line-height:1.1;color:var(--green);margin:8px 0}
+.axes{margin-top:22px}
+.axis-label{display:flex;justify-content:space-between;gap:12px;color:var(--mute);font-size:.9rem}
+.bar{height:8px;border-radius:99px;background:#cbdacb;overflow:hidden;margin:4px 0}
+.bar span{display:block;height:100%;background:var(--green)}
+footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-size:.875rem}
+[hidden]{display:none!important}
+@media(max-width:680px){.hero{grid-template-columns:1fr;gap:28px}.art{width:min(100%,300px)}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header><span class="brand">나의 결</span><span class="chip">MBTI 성향 테스트</span></header>
+<main>
+<section class="hero" id="home">
+<div><p class="eyebrow">일상 속 나를 알아보는 시간</p>
+<h1 tabindex="-1">나를 닮은<br><em>네 글자.</em></h1>
+<p class="intro">쉬는 날을 보내는 방식부터 중요한 결정을 내리는 순간까지. 평소의 나와 더 가까운 쪽을 골라 보세요.</p>
+<p class="facts">20문항 · 약 3분</p>
+<button id="start" type="button">테스트 시작</button>
+</div>
+<div class="art" aria-hidden="true"><span class="tile">E</span><span class="tile">N</span><span class="tile">F</span><span class="tile">P</span></div>
+</section>
+<section class="card" id="quiz" hidden>
+<div class="counter"><span id="count"></span><span id="completed"></span></div>
+<progress id="progress" max="20" value="0" aria-label="응답 진행률"></progress>
+<h2 id="question" tabindex="-1"></h2>
+<div class="options" aria-labelledby="question" role="group">
+<button class="option" type="button"></button><button class="option" type="button"></button>
+</div>
+<div class="actions"><button class="secondary" id="back" type="button">이전</button><button id="next" type="button">다음</button></div>
+</section>
+<section class="card" id="result" hidden>
+<p class="eyebrow">나의 성향 결과</p>
+<h2 class="type" id="type" tabindex="-1"></h2>
+<p id="description"></p>
+<div class="axes" id="axes"></div>
+<div class="actions"><button id="restart" type="button">다시 테스트하기</button></div>
+</section>
+</main>
+<footer>자기 탐색을 위한 간이 테스트입니다. 응답은 서버로 전송되지 않습니다.</footer>
+</div>
+<script>
+const dimensions = [
+  ['E', 'I', '외향', '내향'],
+  ['S', 'N', '감각', '직관'],
+  ['T', 'F', '사고', '감정'],
+  ['J', 'P', '판단', '인식']
+];
+
+// Each question lists the axis and the letter attached to its first answer.
+const questions = [
+  [0,'I','바쁜 한 주가 끝났다. 어떻게 쉬고 싶나요?','혼자 조용히 보내며 에너지를 채운다.','친한 사람을 만나 기분을 전환한다.'],
+  [1,'S','새로운 취미를 배울 때 무엇부터 궁금한가요?','따라 해 볼 수 있는 구체적인 방법','이 취미로 해 볼 수 있는 다양한 시도'],
+  [2,'F','친구가 일 때문에 힘들다고 털어놓으면?','어떤 기분이었는지 먼저 묻는다.','무엇을 바꿀 수 있을지 함께 살펴본다.'],
+  [3,'J','주말에 처음 가는 도시로 떠난다면?','가고 싶은 곳과 이동 순서를 미리 정한다.','도착한 뒤 기분과 상황에 맞춰 정한다.'],
+  [0,'E','아는 사람이 거의 없는 모임에 왔다면?','가까운 사람에게 먼저 말을 건다.','분위기를 살피다가 편한 순간에 대화한다.'],
+  [1,'N','인상 깊은 영화를 본 뒤 무엇을 더 이야기하고 싶나요?','영화가 전하려는 의미나 여러 해석','기억에 남는 장면과 인물의 행동'],
+  [2,'T','함께 만든 결과물에 아쉬운 점이 있다면?','개선할 부분과 이유를 먼저 구체적으로 말한다.','상대의 노력과 기분을 살피며 말을 꺼낸다.'],
+  [3,'P','마감이 한참 남은 과제를 받으면?','가능한 접근을 탐색하며 방향을 잡는다.','일정과 작업 순서를 먼저 정리한다.'],
+  [0,'I','복잡한 생각을 정리하고 싶을 때는?','혼자 생각하거나 글로 먼저 정리한다.','누군가와 이야기하면서 생각을 정리한다.'],
+  [1,'S','길을 설명할 때 어떤 방식이 더 편한가요?','눈에 보이는 건물과 방향을 차례대로 짚어 준다.','동네 구조를 큰 그림으로 알려 준다.'],
+  [2,'F','팀에서 의견이 맞서면 어디부터 살펴보나요?','각자가 중요하게 여기는 점을 듣는다.','각 제안이 공통 기준을 충족하는지 본다.'],
+  [3,'J','갑자기 오후 일정이 비었다면?','남은 시간에 할 일을 몇 가지 정한다.','그때 가장 끌리는 일을 시작한다.'],
+  [0,'E','새로운 아이디어가 떠오르면?','누군가에게 꺼내 놓고 같이 발전시킨다.','혼자 충분히 생각한 뒤 이야기한다.'],
+  [1,'N','새로운 가게를 둘러볼 때 무엇이 먼저 눈에 들어오나요?','공간이 전하는 콘셉트와 분위기','상품 구성이나 배치 같은 구체적인 요소'],
+  [2,'T','단체 활동의 규칙에 예외를 둘지 결정할 때는?','같은 기준을 적용했을 때 공정한지 본다.','그 사람의 사정과 구성원에게 미칠 영향을 살핀다.'],
+  [3,'P','구매 후보가 두 가지로 좁혀졌다면?','새로운 정보가 들어올 수 있으니 결정을 열어 둔다.','기준을 정해 하나를 고르고 다음 일로 넘어간다.'],
+  [0,'I','기분 좋은 소식을 들었을 때는?','가까운 한두 사람과 차분히 나누고 싶다.','여러 사람에게 이야기하며 함께 즐기고 싶다.'],
+  [1,'S','낯선 분야의 설명을 들을 때 어떤 것이 도움이 되나요?','실제 사례와 재현할 수 있는 절차','핵심 원리와 다른 분야에 연결되는 아이디어'],
+  [2,'T','두 가지 해결책이 비슷해 보일 때 더 중요한 것은?','근거가 일관되고 문제를 잘 해결하는지','함께하는 사람들이 받아들이고 지지할 수 있는지'],
+  [3,'J','여럿이 만날 약속을 잡을 때는?','시간과 장소가 일찍 정해지면 마음이 편하다.','대략만 정하고 가까워졌을 때 조정하는 게 편하다.']
+];
+
+const summaries = {
+  ISTJ:'확인할 수 있는 사실과 약속을 바탕으로 꾸준히 일을 마무리하는 편이에요.',
+  ISFJ:'주변 사람의 작은 필요를 살피고 익숙한 일상을 안정적으로 돌보는 편이에요.',
+  INFJ:'혼자 깊이 생각하며 사람의 마음과 상황의 의미를 함께 살피는 편이에요.',
+  INTJ:'앞으로의 가능성을 가늠하고 목표에 이르는 길을 체계적으로 설계하는 편이에요.',
+  ISTP:'직접 관찰하고 시도하면서 상황에 맞는 실용적인 해법을 찾는 편이에요.',
+  ISFP:'자신의 감각과 가치에 귀를 기울이며 눈앞의 경험을 유연하게 즐기는 편이에요.',
+  INFP:'자신이 중요하게 여기는 가치에 따라 여러 가능성을 탐색하는 편이에요.',
+  INTP:'혼자 생각에 몰입해 원리를 파고들고 여러 설명을 비교하는 편이에요.',
+  ESTP:'사람들과 함께 움직이며 눈앞의 변화에 빠르게 반응하는 편이에요.',
+  ESFP:'주변 사람과 경험을 나누고 그 순간의 분위기에 자연스럽게 어울리는 편이에요.',
+  ENFP:'사람과 아이디어를 연결하며 새로운 가능성을 자유롭게 탐색하는 편이에요.',
+  ENTP:'대화하며 새로운 가설을 세우고 여러 관점에서 검토하는 편이에요.',
+  ESTJ:'구체적인 기준과 계획을 정해 여러 사람이 함께 움직이도록 돕는 편이에요.',
+  ESFJ:'사람들의 필요를 알아차리고 함께하는 일정을 세심하게 챙기는 편이에요.',
+  ENFJ:'사람들의 의견을 모아 함께 갈 방향을 구체화하는 편이에요.',
+  ENTJ:'목표를 정하고 아이디어를 실행 가능한 계획으로 바꾸는 편이에요.'
+};
+
+const id = name => document.getElementById(name);
+const optionButtons = [...document.querySelectorAll('.option')];
+const answers = Array(questions.length).fill(null);
+let current = 0;
+
+function show(screen, heading) {
+  for (const section of ['home', 'quiz', 'result']) id(section).hidden = section !== screen;
+  heading.focus();
+}
+
+function renderQuestion() {
+  const [, , prompt, ...options] = questions[current];
+  id('count').textContent = `${current + 1} / ${questions.length} 문항`;
+  const completed = answers.filter(answer => answer !== null).length;
+  id('completed').textContent = `${completed}개 응답`;
+  id('progress').value = completed;
+  id('question').textContent = prompt;
+  optionButtons.forEach((button, index) => {
+    button.textContent = options[index];
+    button.setAttribute('aria-pressed', String(answers[current] === index));
+  });
+  id('back').disabled = current === 0;
+  id('next').disabled = answers[current] === null;
+  id('next').textContent = current === questions.length - 1 ? '결과 보기' : '다음';
+}
+
+function calculate() {
+  const counts = dimensions.map(() => [0, 0]);
+  questions.forEach(([axis, first], index) => {
+    const firstSide = dimensions[axis].indexOf(first);
+    const side = answers[index] === 0 ? firstSide : 1 - firstSide;
+    counts[axis][side]++;
+  });
+  const type = counts.map(([left, right], axis) => dimensions[axis][left > right ? 0 : 1]).join('');
+  return { counts, type };
+}
+
+function renderResult() {
+  const { counts, type } = calculate();
+  id('type').textContent = type;
+  id('description').textContent = summaries[type];
+  id('axes').replaceChildren(...counts.map(([left, right], axis) => {
+    const [a, b, labelA, labelB] = dimensions[axis];
+    const share = left * 100 / (left + right);
+    const row = document.createElement('div');
+    row.innerHTML = `<div class="axis-label"><span>${a} ${labelA} ${share}%</span><span>${100 - share}% ${labelB} ${b}</span></div><div class="bar" aria-hidden="true"><span style="width:${share}%"></span></div>`;
+    return row;
+  }));
+  show('result', id('type'));
+}
+
+optionButtons.forEach((button, index) => button.addEventListener('click', () => {
+  answers[current] = index;
+  renderQuestion();
+}));
+id('start').addEventListener('click', () => {
+  renderQuestion();
+  show('quiz', id('question'));
+});
+id('back').addEventListener('click', () => {
+  current--;
+  renderQuestion();
+  id('question').focus();
+});
+id('next').addEventListener('click', () => {
+  if (answers[current] === null) return;
+  if (current === questions.length - 1) {
+    renderResult();
+    return;
+  }
+  current++;
+  renderQuestion();
+  id('question').focus();
+});
+id('restart').addEventListener('click', () => {
+  answers.fill(null);
+  current = 0;
+  show('home', document.querySelector('h1'));
+});
+</script>
+</body>
+</html>
