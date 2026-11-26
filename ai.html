@@ -13,29 +13,43 @@ header,main{width:min(760px,calc(100% - 36px));margin:auto}
 header{padding:18px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{font-size:1.25rem;letter-spacing:-.07em;font-weight:850}
 main{padding:clamp(24px,5vw,48px) 0 48px}
-h1,h2,h3,p{margin:0}
+h1,h2,h3,h4,p{margin:0}
 h1{font-size:clamp(2rem,5vw,3.6rem);letter-spacing:-.07em;line-height:1.14}
 h2{font-size:clamp(1.35rem,4vw,1.7rem);letter-spacing:-.05em;line-height:1.35}
 h3{font-size:1.15rem}
 p{margin-top:8px}
-.lead,.muted,.counts{color:var(--muted)}
+.lead{color:var(--muted)}
 .card{margin-top:18px;padding:clamp(17px,4vw,32px);background:white;border:1px solid var(--line);border-radius:18px}
 button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:11px 20px;font-weight:750;background:var(--green);color:white}
 a,summary{color:var(--green);font-weight:650}
-button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible,summary:focus-visible,h2:focus-visible{outline:3px solid #648500;outline-offset:3px}
+button:focus-visible,a:focus-visible,textarea:focus-visible,summary:focus-visible,h2:focus-visible{outline:3px solid #648500;outline-offset:3px}
 summary{cursor:pointer;min-height:36px;padding:4px 0}
-textarea,input{width:100%;font:inherit;line-height:1.5;padding:10px 12px;border:1px solid #aab9a9;border-radius:8px;background:white;color:var(--ink)}
+textarea{width:100%;font:inherit;line-height:1.5;padding:10px 12px;border:1px solid #aab9a9;border-radius:8px;background:white;color:var(--ink)}
 textarea{min-height:95px;resize:vertical}
 #prompt{min-height:170px;font-size:.94rem}
 label{display:block;margin:15px 0 4px;font-weight:700}
 details{margin-top:12px}
 .actions{margin-top:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .error{color:#963414}
-#report{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+.gauge-grid{list-style:none;padding:0;margin:20px 0 28px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 24px}
+.gauge-track{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;height:10px;margin:5px 0;border-radius:4px;overflow:hidden}
+.gauge-left{background:var(--green)}
+.gauge-right{background:#c69b62}
+.gauge-labels{display:grid;grid-template-columns:1fr 1fr;gap:8px;color:var(--muted);font-size:.9rem;line-height:1.4}
+.gauge-labels span:last-child{text-align:right}
+.gauge-labels b{color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+@media(max-width:560px){.gauge-grid{grid-template-columns:1fr;gap:14px}}
+#report{border-top:1px solid var(--line);margin-top:8px}
 .metric{padding:16px 0;border-bottom:1px solid var(--line)}
 .metric:last-child{border:0;padding-bottom:0}
-.metric h3 span{font-weight:500;color:var(--muted)}
-.counts{font-size:.93rem}
+.metric h4{font-size:1.05rem}
+.metric h4 span{font-weight:500;color:var(--muted)}
+.tradeoffs{margin:10px 0 0;display:grid;gap:8px}
+.tradeoffs div{border-inline-start:3px solid var(--line);padding-inline-start:10px}
+.tradeoffs div:first-child{border-color:#56806b}
+.tradeoffs div:last-child{border-color:#c69b62}
+.tradeoffs dt{font-weight:700}
+.tradeoffs dd{margin:0}
 .evidence{padding-left:1.3em;margin:6px 0}
 .evidence li{margin:9px 0}
 .evidence strong{display:block}
@@ -66,8 +80,6 @@ details{margin-top:12px}
 <h2>모델의 답변으로 결과 보기</h2>
 <p>모델이 돌려준 JSON 답안 전체를 붙여넣으세요.</p>
 <form id="evaluate" novalidate>
-<label for="model">모델 이름 <small>(선택)</small></label>
-<input id="model" maxlength="80" placeholder="사용한 모델 또는 버전" autocomplete="off">
 <label for="response">모델 답안</label>
 <textarea id="response" spellcheck="false" aria-describedby="error"></textarea>
 <div class="actions"><button type="submit">응답 성향 분석</button></div>
@@ -75,8 +87,11 @@ details{margin-top:12px}
 </form>
 </section>
 <section class="card" id="results" hidden aria-labelledby="result-title">
-<h2 id="result-title" tabindex="-1"></h2>
-<p class="lead">각 항목은 다섯 상황에서 고른 첫 대응의 횟수예요. 같은 모델도 대화 지침이나 버전에 따라 다른 선택을 할 수 있어요.</p>
+<h2 id="result-title" tabindex="-1">AI 응답 성향 결과</h2>
+<p class="lead">게이지 한 칸은 다섯 상황 중 한 번의 선택이에요. 양쪽 숫자는 각 방식을 먼저 택한 횟수예요.</p>
+<ul id="profile-chart" class="gauge-grid" aria-label="여섯 가지 응답 성향"></ul>
+<h3>성향별 강점과 주의점</h3>
+<p class="lead">이번 답안에서 더 자주 고른 방식을 기준으로 정리했어요. 같은 모델도 대화 지침이나 버전에 따라 선택이 달라질 수 있어요.</p>
 <div id="report"></div>
 </section>
 </main>

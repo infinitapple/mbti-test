@@ -4,8 +4,18 @@ const formVersion = 'AI-KR-1';
 const dimensions = [
   {
     name: '모호한 요청 처리',
-    poles: ['질문 먼저', '가정 후 진행'],
-    notes: ['초안을 쓰기 전에 결과를 크게 바꿀 조건을 사용자에게 확인하는 편이에요.', '수정 가능한 가정을 밝히고 사용자가 바로 검토할 초안을 내는 편이에요.'],
+    approaches: [
+      {
+        name: '질문 먼저', note: '초안을 쓰기 전에 결과를 크게 바꿀 조건을 사용자에게 확인하는 편이에요.',
+        strength: '결과를 좌우할 조건을 일찍 확인해 초안을 다시 쓰는 일을 줄일 수 있어요.',
+        tradeoff: '가벼운 초안만 필요한 사람도 질문에 답할 때까지 기다려야 할 수 있어요.'
+      },
+      {
+        name: '가정 후 진행', note: '수정 가능한 가정을 밝히고 사용자가 바로 검토할 초안을 내는 편이에요.',
+        strength: '사용자가 바로 검토할 초안이 생겨 막연한 요청도 구체화하기 쉬워요.',
+        tradeoff: '대상이나 용도를 잘못 짚으면 초안 전체를 다시 써야 할 수 있어요.'
+      }
+    ],
     items: [
       ['“신입 교육 일정을 짜줘.” 교육 기간과 대상 인원이 비어 있다. 첫 답변은?', '기간과 인원을 물어보고, 그 답을 받아 시간표를 짠다.', '소규모 하루 교육으로 가정하고 수정할 수 있는 시간표를 먼저 준다.'],
       ['“이 문구를 자연스럽게 번역해줘.” 회사 공지인지 친구에게 보낼 말인지 불분명하다.', '누구에게 보내는 문구인지 먼저 묻는다.', '일상 대화로 가정했다고 밝히고 자연스러운 번역을 먼저 준다.'],
@@ -16,8 +26,18 @@ const dimensions = [
   },
   {
     name: '불확실성 전달',
-    poles: ['잠정 결론 먼저', '가능성 범위 먼저'],
-    notes: ['현재 증거로 가장 그럴듯한 해석부터 제시하고, 결론을 바꿀 조건을 덧붙이는 편이에요.', '열려 있는 해석이나 범위를 먼저 제시하고, 그 사이를 구분할 근거를 짚는 편이에요.'],
+    approaches: [
+      {
+        name: '잠정 결론 먼저', note: '현재 증거로 가장 그럴듯한 해석부터 제시하고, 결론을 바꿀 조건을 덧붙이는 편이에요.',
+        strength: '자료가 적어도 일정이나 계획을 세울 임시 기준을 빠르게 잡아 줘요.',
+        tradeoff: '첫 결론이 기억에 남아 뒤에 붙인 조건이나 예외를 놓치기 쉬워요.'
+      },
+      {
+        name: '가능성 범위 먼저', note: '열려 있는 해석이나 범위를 먼저 제시하고, 그 사이를 구분할 근거를 짚는 편이에요.',
+        strength: '여러 해석을 비교해 결론을 가를 추가 증거가 무엇인지 찾기 쉬워요.',
+        tradeoff: '오늘 쓸 추정값 하나가 필요할 때는 범위만 먼저 들어 판단이 늦어질 수 있어요.'
+      }
+    ],
     items: [
       ['참석 응답 12개 중 7개가 토요일을 택했다. 미응답자가 8명일 때 “언제가 유력해?”에 어떻게 답할까?', '현재 응답에서는 토요일이 앞선다고 먼저 말하고 미응답의 영향을 덧붙인다.', '미응답에 따라 두 날 모두 가능함을 먼저 말하고 현재 토요일이 앞선다고 덧붙인다.'],
       ['시험 제작 세 번에 4일, 6일, 8일이 걸렸다. 다음 작업의 예상 시간을 묻는다.', '비슷한 조건이면 6일을 임시 기준으로 잡고 실제 기록 범위를 붙인다.', '관측된 4~8일 범위를 먼저 말하고 그 가운데 6일을 임시 기준으로 제안한다.'],
@@ -28,8 +48,18 @@ const dimensions = [
   },
   {
     name: '개념 설명 방식',
-    poles: ['원리부터', '사례부터'],
-    notes: ['정의나 규칙을 먼저 세워 개별 사례를 이해할 틀을 주는 편이에요.', '작은 예시를 먼저 따라가게 한 뒤 그 안의 규칙에 이름을 붙이는 편이에요.'],
+    approaches: [
+      {
+        name: '원리부터', note: '정의나 규칙을 먼저 세워 개별 사례를 이해할 틀을 주는 편이에요.',
+        strength: '공통 규칙을 먼저 알아두면 처음 보는 사례에도 같은 원리를 적용하기 쉬워요.',
+        tradeoff: '낯선 용어가 먼저 나오면 초보자는 실제로 무엇을 해 볼지 감을 잡기 어려워요.'
+      },
+      {
+        name: '사례부터', note: '작은 예시를 먼저 따라가게 한 뒤 그 안의 규칙에 이름을 붙이는 편이에요.',
+        strength: '구체적인 예시를 따라 하면서 낯선 개념도 바로 써 볼 수 있어요.',
+        tradeoff: '예시에만 맞는 조건까지 일반 규칙으로 받아들일 수 있어요.'
+      }
+    ],
     items: [
       ['처음 엑셀을 쓰는 사용자가 “절대 참조가 뭐야?”라고 묻는다.', '복사해도 주소가 고정된다는 규칙을 설명한 뒤 세금 계산 예시를 든다.', '세율 셀을 고정해 수식을 복사하는 예시를 보여준 뒤 규칙을 짚는다.'],
       ['중학생이 “평균과 중앙값이 왜 달라?”라고 묻는다.', '두 값의 정의를 비교한 뒤 작은 숫자 묶음으로 확인한다.', '다섯 숫자 중 하나를 크게 바꿔 두 값을 계산한 뒤 정의를 정리한다.'],
@@ -40,8 +70,18 @@ const dimensions = [
   },
   {
     name: '문제 해결의 첫 단계',
-    poles: ['원인 확인', '작은 조치 시도'],
-    notes: ['증상이 나타나는 조건을 먼저 좁혀 원인에 맞는 조치를 찾는 편이에요.', '비용이 작고 되돌릴 수 있는 조치를 먼저 시험한 뒤 결과를 보고 범위를 좁히는 편이에요.'],
+    approaches: [
+      {
+        name: '원인 확인', note: '증상이 나타나는 조건을 먼저 좁혀 원인에 맞는 조치를 찾는 편이에요.',
+        strength: '문제가 생기는 조건을 좁히면 효과 없는 조치를 반복하는 일을 줄일 수 있어요.',
+        tradeoff: '금방 시험하고 되돌릴 수 있는 조치도 원인을 찾느라 늦어질 수 있어요.'
+      },
+      {
+        name: '작은 조치 시도', note: '비용이 작고 되돌릴 수 있는 조치를 먼저 시험한 뒤 결과를 보고 범위를 좁히는 편이에요.',
+        strength: '부담이 작은 조치를 먼저 시험해 무엇이 달라지는지 바로 확인할 수 있어요.',
+        tradeoff: '증상이 잠시 사라져도 원인이 남아 같은 문제가 되풀이될 수 있어요.'
+      }
+    ],
     items: [
       ['회의 앱에서 내 목소리가 작다. 기기 설정은 언제든 되돌릴 수 있다.', '다른 앱에서도 작은지 먼저 물어 문제 범위를 좁힌다.', '입력 음량을 한 단계 올려 시험 녹음한 뒤 변화를 확인한다.'],
       ['프레젠테이션을 다른 화면에 띄우니 글줄이 어긋난다. 원본은 보관돼 있다.', '어떤 화면과 글꼴 조합에서 어긋나는지 비교한다.', '복사본 한 장의 글꼴을 기본 글꼴로 바꿔 화면에서 확인한다.'],
@@ -52,8 +92,18 @@ const dimensions = [
   },
   {
     name: '아이디어 제안 방식',
-    poles: ['여러 방향 탐색', '한 방향 구체화'],
-    notes: ['성격이 다른 후보를 먼저 펼쳐 사용자가 방향을 고르게 하는 편이에요.', '가능성 있는 한 가지를 골라 구현 모습과 첫 단계까지 보여주는 편이에요.'],
+    approaches: [
+      {
+        name: '여러 방향 탐색', note: '성격이 다른 후보를 먼저 펼쳐 사용자가 방향을 고르게 하는 편이에요.',
+        strength: '서로 다른 후보를 비교하면서 처음엔 떠올리지 못했던 방향을 발견할 수 있어요.',
+        tradeoff: '후보를 고르는 데 시간이 들고 당장 실행할 첫 단계가 흐려질 수 있어요.'
+      },
+      {
+        name: '한 방향 구체화', note: '가능성 있는 한 가지를 골라 구현 모습과 첫 단계까지 보여주는 편이에요.',
+        strength: '한 가지 아이디어를 준비물이나 첫 단계까지 다듬어 실행에 옮기기 쉬워요.',
+        tradeoff: '방향을 일찍 정하면 사용자 취향에 더 잘 맞는 다른 아이디어를 놓칠 수 있어요.'
+      }
+    ],
     items: [
       ['동네 책방이 “비 오는 날 손님을 위한 이벤트 아이디어 줘”라고 한다.', '낭독회, 책 교환, 창가 필사처럼 다른 방향을 짧게 펼친다.', '창가 필사 모임 하나를 골라 준비물과 운영 순서를 보여준다.'],
       ['팟캐스트 진행자가 새 코너를 구상 중이다. 분량은 자유다.', '인터뷰·퀴즈·청취자 사연 등 서로 다른 형식을 제시한다.', '청취자 사연 코너를 골라 첫 회 대본과 참여 방법을 그린다.'],
@@ -64,8 +114,18 @@ const dimensions = [
   },
   {
     name: '의사결정 지원',
-    poles: ['추천안 제시', '선택 기준 제시'],
-    notes: ['사용자가 말한 우선순위를 근거로 한 안을 먼저 추천하는 편이에요.', '조건에 따라 어느 안이 맞는지 정리해 사용자가 고를 기준을 주는 편이에요.'],
+    approaches: [
+      {
+        name: '추천안 제시', note: '사용자가 말한 우선순위를 근거로 한 안을 먼저 추천하는 편이에요.',
+        strength: '사용자가 밝힌 우선순위를 실제 선택으로 연결해 결정을 내리기 쉬워요.',
+        tradeoff: '사용자가 아직 말하지 않은 조건이 중요하면 추천이 빗나갈 수 있어요.'
+      },
+      {
+        name: '선택 기준 제시', note: '조건에 따라 어느 안이 맞는지 정리해 사용자가 고를 기준을 주는 편이에요.',
+        strength: '조건별로 득실을 비교해 사용자가 자신의 우선순위에 맞게 고를 수 있어요.',
+        tradeoff: '한 가지 추천을 원한 사람에게는 비교하고 결정하는 부담이 남을 수 있어요.'
+      }
+    ],
     items: [
       ['가벼운 가방과 수납이 큰 가방 중 고민하는 사용자다. 매일 도보 출근하며 가끔 운동복도 챙긴다.', '도보 출근 빈도를 근거로 가벼운 가방을 추천하고 운동복 수납의 단점을 짚는다.', '걷는 피로와 운동복을 챙기는 빈도 중 무엇을 우선할지 기준을 나눠 준다.'],
       ['주말 수업 두 개 중 고민한다. 한쪽은 집과 가깝고 다른 쪽은 듣고 싶던 강사의 수업이다.', '꾸준히 참석하고 싶다는 목표라면 가까운 수업을 추천하고 강사의 장점도 짚는다.', '출석 편의와 강사 선호 중 어느 쪽을 중시할 때 각 수업이 맞는지 정리한다.'],
@@ -143,7 +203,25 @@ function element(tag, text, className) {
   return node;
 }
 
-function renderReport(answers, model, enter = true) {
+function renderGauge(dimension, counts) {
+  const gauge = element('li', '');
+  const track = element('div', '', 'gauge-track');
+  track.setAttribute('aria-hidden', 'true');
+  const labels = element('div', '', 'gauge-labels');
+  dimension.approaches.forEach((approach, side) => {
+    for (let i = 0; i < counts[side]; i++) {
+      track.append(element('span', '', side === 0 ? 'gauge-left' : 'gauge-right'));
+    }
+    const label = element('span', t(approach.name) + ' ');
+    label.append(element('b', t('{n}회', {n: counts[side]})));
+    labels.append(label);
+  });
+  gauge.append(element('strong', t(dimension.name)), track, labels);
+  return gauge;
+}
+
+function renderReport(answers, enter = true) {
+  const gauges = [];
   const sections = dimensions.map((dimension, axis) => {
     const counts = [0, 0];
     const list = element('ul', '', 'evidence');
@@ -154,21 +232,26 @@ function renderReport(answers, model, enter = true) {
       item.append(element('strong', q.id + ' · ' + t(q.prompt)), t(q.options[position]));
       list.append(item);
     }
-    const leading = counts[0] > counts[1] ? 0 : 1;
+    gauges.push(renderGauge(dimension, counts));
+    const approach = dimension.approaches[counts[0] > counts[1] ? 0 : 1];
     const section = element('section', '', 'metric');
-    const heading = element('h3', t(dimension.name));
-    heading.append(element('span', ' · ' + t(dimension.poles[leading])));
+    const heading = element('h4', t(dimension.name));
+    heading.append(element('span', ' · ' + t(approach.name)));
     const spread = Math.max(...counts);
     const frequency = spread === 3 ? '두 방식이 3대 2로 갈렸어요.' : spread === 4 ? '다섯 상황 중 네 번 같은 방식을 골랐어요.' : '다섯 상황 모두 같은 방식을 골랐어요.';
     const details = element('details', '');
     details.append(element('summary', t('선택한 답변 5개 보기')), list);
-    section.append(heading,
-      element('p', t('{left} {a}회 · {right} {b}회', {left: t(dimension.poles[0]), a: counts[0], right: t(dimension.poles[1]), b: counts[1]}), 'counts'),
-      element('p', t(frequency) + ' ' + t(dimension.notes[leading])), details);
+    const tradeoffs = element('dl', '', 'tradeoffs');
+    for (const [label, text] of [['강점', approach.strength], ['주의점', approach.tradeoff]]) {
+      const row = element('div', '');
+      row.append(element('dt', t(label)), element('dd', t(text)));
+      tradeoffs.append(row);
+    }
+    section.append(heading, element('p', t(frequency) + ' ' + t(approach.note)), tradeoffs, details);
     return section;
   });
+  byId('profile-chart').replaceChildren(...gauges);
   byId('report').replaceChildren(...sections);
-  byId('result-title').textContent = t('{model}의 응답 성향', {model: model || t('AI 모델')});
   byId('results').hidden = false;
   if (enter) byId('result-title').focus();
 }
@@ -192,7 +275,7 @@ byId('evaluate').addEventListener('submit', event => {
   }
   byId('error').textContent = '';
   byId('response').removeAttribute('aria-invalid');
-  renderReport(answers, byId('model').value.trim());
+  renderReport(answers);
 });
 
 document.addEventListener('quizlanguagechange', () => {
@@ -200,7 +283,7 @@ document.addEventListener('quizlanguagechange', () => {
   byId('copy-status').textContent = '';
   if (!byId('results').hidden) {
     const expanded = [...byId('report').querySelectorAll('details')].map(item => item.open);
-    renderReport(readAnswers(byId('response').value), byId('model').value.trim(), false);
+    renderReport(readAnswers(byId('response').value), false);
     byId('report').querySelectorAll('details').forEach((item, i) => { item.open = expanded[i]; });
   } else if (byId('response').hasAttribute('aria-invalid')) {
     try {
