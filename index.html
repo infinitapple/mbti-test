@@ -51,6 +51,7 @@ progress::-moz-progress-bar{background:var(--green)}
   font-weight:650;text-align:center;word-break:keep-all;pointer-events:none;
 }
 .feedback:empty{opacity:0}
+.feedback strong{display:block;color:var(--lime);margin-bottom:2px}
 .actions{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:24px}
 .type{font-size:clamp(3rem,12vw,6rem);font-weight:900;letter-spacing:-.08em;line-height:1.1;color:var(--green);margin:8px 0}
 .report-section{margin-top:30px;padding-top:22px;border-top:1px solid var(--line)}
@@ -366,18 +367,12 @@ const id = name => document.getElementById(name);
 const optionButtons = [...document.querySelectorAll('.option')];
 const answers = Array(questions.length).fill(null);
 let current = 0;
-let feedbackTimer;
 id('total').textContent = questions.length;
 id('progress').max = questions.length;
 
 function show(screen, heading) {
   for (const section of ['home', 'quiz', 'result']) id(section).hidden = section !== screen;
   heading.focus();
-}
-
-function clearFeedback() {
-  clearTimeout(feedbackTimer);
-  id('feedback').textContent = '';
 }
 
 function sceneAt(step) {
@@ -394,6 +389,7 @@ function renderQuestion() {
   id('progress').value = completed;
   id('question').textContent = prompt;
   optionButtons.forEach((button, index) => {
+    button.disabled = false;
     button.textContent = choices[index].text;
     button.setAttribute('aria-pressed', String(answers[current] === index));
   });
@@ -402,12 +398,18 @@ function renderQuestion() {
   id('next').textContent = current === questions.length - 1 ? '여행 결과 보기' : '다음 장면';
 }
 
+function scoreForAnswer(step) {
+  const {first} = questions[step];
+  const axis = dimensions.findIndex(([left, right]) => first === left || first === right);
+  const firstSide = dimensions[axis].indexOf(first);
+  const side = answers[step] === 0 ? firstSide : 1 - firstSide;
+  return {axis, side};
+}
+
 function calculate() {
   const votes = dimensions.map(() => [0, 0]);
-  questions.forEach(({first}, index) => {
-    const axis = dimensions.findIndex(([left, right]) => first === left || first === right);
-    const firstSide = dimensions[axis].indexOf(first);
-    const side = answers[index] === 0 ? firstSide : 1 - firstSide;
+  answers.forEach((_, step) => {
+    const {axis, side} = scoreForAnswer(step);
     votes[axis][side]++;
   });
   const type = votes.map(([left, right], axis) => dimensions[axis][left > right ? 0 : 1]).join('');
@@ -476,30 +478,40 @@ optionButtons.forEach((button, index) => button.addEventListener('click', () => 
   if (answers[current] !== index) answers.fill(null, current + 1);
   answers[current] = index;
   renderQuestion();
-  clearTimeout(feedbackTimer);
-  id('feedback').textContent = sceneAt(current).choices[index].feedback;
-  feedbackTimer = setTimeout(clearFeedback, 1600);
 }));
 id('start').addEventListener('click', () => {
   renderQuestion();
   show('quiz', id('question'));
 });
 id('back').addEventListener('click', () => {
-  clearFeedback();
   current--;
   renderQuestion();
   id('question').focus();
 });
 id('next').addEventListener('click', () => {
-  if (answers[current] === null) return;
-  clearFeedback();
-  if (current === questions.length - 1) {
-    renderResult();
-    return;
-  }
-  current++;
-  renderQuestion();
-  id('question').focus();
+  if (id('next').disabled) return;
+  id('next').disabled = true;
+  id('back').disabled = true;
+  for (const button of optionButtons) button.disabled = true;
+
+  const {axis, side} = scoreForAnswer(current);
+  const dimension = dimensions[axis];
+  const label = document.createElement('strong');
+  label.textContent = `이번 선택 · ${dimension[side + 2]}(${dimension[side]})`;
+  const message = sceneAt(current).choices[answers[current]].feedback;
+  const popup = id('feedback');
+  popup.replaceChildren(label, message);
+
+  setTimeout(() => {
+    popup.replaceChildren();
+    if (current === questions.length - 1) {
+      renderResult();
+      return;
+    }
+    current++;
+    renderQuestion();
+    id('question').focus();
+  }, 2000);
 });
 id('restart').addEventListener('click', () => {
   answers.fill(null);
