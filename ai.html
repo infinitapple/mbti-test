@@ -45,7 +45,8 @@ details{margin-top:12px}
 <script defer src="./ai-test.js"></script>
 </head>
 <body>
-<header class="ai-header"><span class="brand">성향 테스트</span><a data-language-link href="./">테스트 선택</a><nav class="language-switch" aria-label="언어 선택">
+<header class="ai-header"><div class="site-identity"><span class="brand">성향 테스트</span>
+<span class="last-result" id="last-result" hidden><span>최근 MBTI</span> <strong></strong></span></div><a data-language-link href="./">테스트 선택</a><nav class="language-switch" aria-label="언어 선택">
 <button type="button" data-lang="ko" lang="ko" aria-label="한국어" title="한국어"><img src="./flags/kr.png" alt="" width="27" height="18"></button>
 <button type="button" data-lang="ja" lang="ja" aria-label="日本語" title="日本語"><img src="./flags/jp.png" alt="" width="27" height="18"></button>
 <button type="button" data-lang="en" lang="en" aria-label="English" title="English"><img src="./flags/us.png" alt="" width="27" height="14"></button>
@@ -81,5 +82,6 @@ details{margin-top:12px}
 </main>
 <script src="./translations.js"></script>
 <script src="./language.js"></script>
+<script src="./last-result.js"></script>
 </body>
 </html>

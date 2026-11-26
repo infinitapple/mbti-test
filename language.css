@@ -1,4 +1,7 @@
 header{flex-wrap:wrap;gap:8px 14px}
+.site-identity{display:flex;align-items:center;flex-wrap:wrap;gap:2px 12px}
+.last-result{display:inline-flex;align-items:baseline;gap:.4em;color:#4c6057;font-size:.875rem}
+.last-result strong{color:#174d3d;letter-spacing:.04em}
 .language-switch{margin-inline-start:auto;display:flex;align-items:center;gap:2px}
 .language-switch button{
   display:grid;place-items:center;width:44px;height:44px;padding:7px;border-radius:10px;

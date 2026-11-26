@@ -1,5 +1,15 @@
 // Korean source text is the lookup key. Placeholders are shared across locales.
 const translations = {
+  "최근 MBTI": {"ja": "前回のMBTI", "en": "Last MBTI"},
+  "{type}로 소개된 유명인": {"ja": "{type}と紹介されている有名人", "en": "Famous people listed as {type}"},
+  "인물 국적": {"ja": "人物の国籍", "en": "Nationality"},
+  "한국": {"ja": "韓国", "en": "South Korea"},
+  "일본": {"ja": "日本", "en": "Japan"},
+  "미국": {"ja": "米国", "en": "United States"},
+  "남성": {"ja": "男性", "en": "Male"},
+  "여성": {"ja": "女性", "en": "Female"},
+  "본인 공개 · 출처": {"ja": "本人が公表 · 出典", "en": "Self-reported · Source"},
+  "외부 추정 · 출처": {"ja": "第三者の推定 · 出典", "en": "Third-party estimate · Source"},
   "성향 테스트": {"ja": "性格・傾向テスト", "en": "Personality Test"},
   "성향 테스트 · AI 모델의 응답 성향": {"ja": "性格・傾向テスト · AIの応答傾向", "en": "Personality Test · AI Response Styles"},
   "사람은 일상의 선택으로 MBTI와 협력 스타일을, AI 모델은 작업 상황에 대한 답변으로 응답 성향을 살펴보세요.": {"ja": "日常の選択から自分のMBTIと協力スタイルを、仕事の場面への回答からAIの応答傾向を見てみましょう。", "en": "Explore your MBTI and teamwork style through everyday choices, or discover how an AI model responds to practical tasks."},

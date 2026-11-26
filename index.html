@@ -76,6 +76,14 @@ summary{cursor:pointer;color:var(--green);font-weight:700;padding:6px 0}
 .match-card{margin:14px 0}
 .match-card h4{margin:0 0 3px;font-size:1.05rem;color:var(--green)}
 .match-note{color:var(--mute);font-size:.9rem}
+.people-heading{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 12px}
+.country-picker{display:flex;align-items:center;gap:7px;font-size:.9rem;color:var(--mute)}
+.country-picker select{font:inherit;color:var(--ink);background-color:white;border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-height:44px}
+.people-list{padding:0;margin:12px 0 0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,13em),1fr));gap:10px}
+.people-list li{padding:14px 16px;background:var(--paper);border-radius:12px;display:grid;gap:3px;align-content:start}
+.people-list small,.people-list a{font-size:.875rem}
+.people-list small{color:var(--mute)}
+.people-list a{color:var(--green);justify-self:start;text-underline-offset:2px}
 footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-size:.875rem}
 [hidden]{display:none!important}
 @media(max-width:680px){.mode-grid{grid-template-columns:1fr}}
@@ -84,7 +92,8 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-si
 </head>
 <body>
 <div class="shell">
-<header><span class="brand">성향 테스트</span><nav class="language-switch" aria-label="언어 선택">
+<header><div class="site-identity"><span class="brand">성향 테스트</span>
+<span class="last-result" id="last-result" hidden><span>최근 MBTI</span> <strong></strong></span></div><nav class="language-switch" aria-label="언어 선택">
 <button type="button" data-lang="ko" lang="ko" aria-label="한국어" title="한국어"><img src="./flags/kr.png" alt="" width="27" height="18"></button>
 <button type="button" data-lang="ja" lang="ja" aria-label="日本語" title="日本語"><img src="./flags/jp.png" alt="" width="27" height="18"></button>
 <button type="button" data-lang="en" lang="en" aria-label="English" title="English"><img src="./flags/us.png" alt="" width="27" height="14"></button>
@@ -144,6 +153,14 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-si
 <div id="companions"></div>
 <p class="match-note">이번 선택을 바탕으로 떠올린 협력 예시예요.</p>
 </section>
+<section class="report-section" aria-labelledby="people-title">
+<div class="people-heading"><h3 id="people-title"></h3>
+<label class="country-picker"><span>인물 국적</span>
+<select id="people-country">
+<option value="KR">한국</option><option value="JP">일본</option><option value="US">미국</option>
+</select></label></div>
+<ul class="people-list" id="people-list" aria-live="polite"></ul>
+</section>
 <div class="actions"><button class="secondary" id="review" type="button">마지막 답 수정</button><button id="restart" type="button">새 질문으로 다시 하기</button></div>
 </section>
 </main>
@@ -151,6 +168,11 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-si
 </div>
 <script src="./translations.js"></script>
 <script src="./language.js"></script>
+<script src="./last-result.js"></script>
+<script src="./people-kr.js"></script>
+<script src="./people-jp.js"></script>
+<script src="./people-us.js"></script>
+<script src="./people.js"></script>
 <script>
 const dimensions = [
   ['E', 'I', '외향', '내향'],
@@ -287,7 +309,8 @@ const answers = Array(pools.length).fill(null);
 let previousPrompts = [];
 try {
   const saved = JSON.parse(sessionStorage.getItem('lastQuizPrompts'));
-  if (Array.isArray(saved)) previousPrompts = saved;
+  if (Array.isArray(saved) && saved.length === pools.length &&
+      pools.every(pool => pool.scenes.some(scene => saved.includes(scene.prompt)))) previousPrompts = saved;
 } catch {}
 let current = 0;
 let feedbackTimer;
@@ -420,13 +443,17 @@ function renderResult(enter = true) {
   id('description').textContent = t(summaries[type]);
   renderTeamStyle();
   renderCompanions(type);
+  renderPeople(type);
   id('axes').replaceChildren(...shares.map((share, axis) => {
     const [a, b, labelA, labelB] = dimensions[axis];
     const row = document.createElement('div');
     row.innerHTML = `<div class="axis-label"><span>${a} ${t(labelA)} ${share}%</span><span>${100 - share}% ${t(labelB)} ${b}</span></div><div class="bar" aria-hidden="true"><span style="width:${share}%"></span></div><p class="axis-detail">${t(traitNotes[type[axis]])}</p>`;
     return row;
   }));
-  if (enter) show('result', id('type'));
+  if (enter) {
+    show('result', id('type'));
+    lastHumanResult.save(type);
+  }
 }
 
 document.addEventListener('quizlanguagechange', () => {
@@ -463,6 +490,7 @@ optionButtons.forEach((button, index) => button.addEventListener('click', () => 
   const {axis, side} = scoreForAnswer(current);
   const dimension = dimensions[axis];
   const last = current === questions.length - 1;
+  const canShowHint = Boolean(lastHumanResult.type || previousPrompts.length);
   clearFeedback();
   if (last) {
     previousPrompts = questions.map((_, step) => sceneAt(step).prompt);
@@ -476,9 +504,11 @@ optionButtons.forEach((button, index) => button.addEventListener('click', () => 
     id('question').focus();
   }
 
-  const popup = id(last ? 'result-feedback' : 'feedback');
-  popup.textContent = t('직전 선택 · {trait}({letter})', {trait: t(dimension[side + 2]), letter: dimension[side]});
-  feedbackTimer = setTimeout(clearFeedback, 1000);
+  if (canShowHint) {
+    const popup = id(last ? 'result-feedback' : 'feedback');
+    popup.textContent = t('직전 선택 · {trait}({letter})', {trait: t(dimension[side + 2]), letter: dimension[side]});
+    feedbackTimer = setTimeout(clearFeedback, 1000);
+  }
 }));
 </script>
 </body>
