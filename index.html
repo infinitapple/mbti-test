@@ -42,7 +42,15 @@ progress::-webkit-progress-value{background:var(--green)}
 progress::-moz-progress-bar{background:var(--green)}
 .options,.axes{display:grid;gap:10px}
 .option{text-align:left;background:#f5f7ef;color:var(--ink);border:1px solid var(--line);font-weight:650}
-.option:hover,.option[aria-pressed=true]{background:#e6f288;border-color:#778d34}
+.option:hover{background:#e6f288;border-color:#778d34}
+.option[aria-pressed=true]{background:var(--green);color:white}
+.choices{display:grid;gap:8px;margin-bottom:18px}
+.choices p{display:flex;align-items:baseline;gap:10px;word-break:keep-all}
+.choices b{padding:0 7px;border-radius:5px;background:#e6f288;color:var(--ink)}
+.choices p+p b{background:#ced1f0}
+.options{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.option{text-align:center;padding:10px 6px;word-break:keep-all}
+@media(max-width:540px){.options{grid-template-columns:1fr}.option{text-align:left;padding:9px 14px}}
 .actions{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:24px}
 .type{font-size:clamp(3rem,12vw,6rem);font-weight:900;letter-spacing:-.08em;line-height:1.1;color:var(--green);margin:8px 0}
 .axes{margin-top:22px}
@@ -61,7 +69,7 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-si
 <section class="hero" id="home">
 <div><p class="eyebrow">주말 여행 MBTI</p>
 <h1 tabindex="-1">같이 떠날래?<br><em>바다로!</em></h1>
-<p class="intro">금요일 밤, 친구에게서 바다로 떠나자는 메시지가 왔어요. 기차표를 고르는 순간부터 돌아오는 길까지, 나라면 어떻게 할지 골라 보세요.</p>
+<p class="intro">금요일 밤, 친구에게서 바다로 떠나자는 메시지가 왔어요. 두 행동 중 내 마음이 어디에 얼마나 기우는지 골라 보세요. 선택에 따라 다음 여행 장면이 달라져요.</p>
 <p class="facts"><span id="total"></span>가지 선택 · 약 2분</p>
 <button id="start" type="button">여행 떠나기</button>
 </div>
@@ -72,8 +80,16 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-si
 <progress id="progress" value="0" aria-label="여행 진행률"></progress>
 <p class="eyebrow" id="chapter"></p>
 <h2 id="question" tabindex="-1"></h2>
+<div class="choices">
+<p><b>A</b><span id="choice-a"></span></p>
+<p><b>B</b><span id="choice-b"></span></p>
+</div>
 <div class="options" aria-labelledby="question" role="group">
-<button class="option" type="button"></button><button class="option" type="button"></button>
+<button class="option" type="button"></button>
+<button class="option" type="button"></button>
+<button class="option" type="button"></button>
+<button class="option" type="button"></button>
+<button class="option" type="button"></button>
 </div>
 <div class="actions"><button class="secondary" id="back" type="button">이전</button><button id="next" type="button">다음</button></div>
 </section>
@@ -82,6 +98,7 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-si
 <h2 class="type" id="type" tabindex="-1"></h2>
 <p id="description"></p>
 <div class="axes" id="axes"></div>
+<p class="intro">비율은 이번 여행에서 고른 응답의 방향과 강도를 나타내요.</p>
 <div class="actions"><button id="restart" type="button">다시 떠나기</button></div>
 </section>
 </main>
@@ -95,22 +112,92 @@ const dimensions = [
   ['J', 'P', '판단', '인식']
 ];
 
-// Each question lists the axis and the letter attached to its first answer.
+// A and B describe opposite preferences on one axis. The previous rating selects
+// the scene for the next step, never the axis or the points available on it.
 const chapters = ['금요일 밤 · 여행 준비', '토요일 · 바닷가 마을', '일요일 · 돌아오는 길'];
 const questions = [
-  [3,'J','금요일 밤, 단톡방에 “내일 바다 갈래?”가 올라왔다. 첫 답장은?','좋아! 기차 시간하고 숙소부터 정하자.','좋아! 일단 만나고 어디 갈지 정하자.'],
-  [0,'I','친구가 처음 보는 사람도 데려온대요. 출발 전에 나는?','둘만 아는 친구에게 먼저 어떤 사람인지 물어본다.','단톡방에 초대해서 먼저 인사를 건넨다.'],
-  [1,'N','두 마을 중 어디가 더 끌리나요?','밤마다 바다에서 빛이 난다는 이야기가 전해지는 마을','항구에 시장과 산책로가 있고 해 질 무렵 전망이 좋은 마을'],
-  [2,'T','숙소 후보가 둘로 갈렸다. 어떻게 의견을 모을까요?','가격, 거리, 시설을 같은 기준으로 비교해 보자.','각자 이번 여행에서 꼭 챙기고 싶은 것부터 들어 보자.'],
-  [0,'E','기차에서 친구 옆자리에 앉았다. 한 시간은 어떻게 보내나요?','간식을 뜯고 밀린 이야기를 나눈다.','이어폰을 끼고 느긋하게 창밖을 본다.'],
-  [1,'S','방파제 끝에 잠긴 작은 등대가 보인다. 뭐부터 떠오르나요?','저기까지 걸어갈 수 있나? 표지판을 찾아봐야겠다.','저 등대에 마지막으로 불을 켠 사람은 누구였을까?'],
-  [3,'P','갑자기 비가 내려 해변에 못 간다. 이제 어쩌죠?','처마 밑을 따라 걷다가 눈에 띄는 곳에 들어가자.','갈 수 있는 실내 장소를 찾아 남은 일정을 다시 짜자.'],
-  [2,'F','사진을 찍어 주던 친구가 카메라를 떨어뜨리고 굳어 버렸다. 첫마디는?','놀랐겠다. 잠깐 앉았다 갈까?','렌즈부터 확인해 보자. 깨진 데가 있는지 볼게.'],
-  [1,'N','집에 가져갈 엽서 한 장을 고른다면?','해 질 무렵의 바다가 어떤 이야기처럼 느껴지는 그림','친구들과 걸었던 골목이 그대로 담긴 사진'],
-  [0,'I','귀가 기차까지 40분이 남았다. 뭘 하고 싶나요?','혼자 커피를 들고 바닷가를 한 바퀴 걷고 싶다.','친구들이랑 시장에서 마지막 간식을 나눠 먹고 싶다.'],
-  [2,'T','정산 중 한 친구가 거의 못 먹은 간식값을 나눌지 고민된다. 어떻게 정하나요?','어느 비용을 공동 지출로 볼지 기준을 정하고 똑같이 적용한다.','그 친구에게 어떻게 나누면 편할지 묻고 함께 정한다.'],
-  [3,'J','“다음엔 산에 갈까?”라는 말이 나왔다. 나는?','다들 언제 되는지 캘린더를 열어 확인한다.','좋다고 답하고 다음에 기회가 생기면 가기로 한다.']
+  {first: 'J', scenes: [
+    ['금요일 밤, 단톡방에 “내일 바다 갈래?”가 떴어요. 어떤 답장이 나답나요?', '지금 기차와 숙소를 정하면 마음 편히 잘 수 있어.', '내일 만나서 그때 끌리는 곳으로 가자.']
+  ]},
+  {first: 'E', scenes: [
+    ['기차와 숙소 예약 완료! 신난 마음을 어떻게 즐길까요?', '친구들에게 전화를 걸어 여행 수다를 떤다.', '좋아하는 음악을 들으며 혼자 여행 기분을 낸다.'],
+    ['기차 시간 하나는 정했어요. 잠들기 전 남은 시간에는?', '단톡방에서 다 같이 짐 싸는 이야기를 나눈다.', '조용히 내 가방을 꾸리며 설렘을 즐긴다.'],
+    ['계획 얘기는 잠시 쉬기로 했어요. 밤 열 시, 지금 더 끌리는 건?', '친구들과 음성 채팅에 들어가 한바탕 웃기', '채팅을 잠시 닫고 나만의 시간을 갖기'],
+    ['큰 방향만 정했어요. 친구가 “아직 안 자?” 하고 묻네요.', '통화를 켜고 떠오르는 이야기를 주고받는다.', '짧게 인사하고 혼자 느긋하게 밤을 보낸다.'],
+    ['“내일 바람 부는 대로!” 단톡방이 들썩여요. 나는?', '여행 노래를 올리고 친구들과 실시간으로 듣는다.', '나만의 플레이리스트를 들으며 들뜬 마음을 즐긴다.']
+  ]},
+  {first: 'N', scenes: [
+    ['여행 수다가 바닷마을 이야기로 이어졌어요. 더 듣고 싶은 건?', '밤바다의 불빛에 얽힌 마을 전설', '어느 방파제에서 몇 시에 불빛이 보이는지'],
+    ['친구가 마을 사진을 하나 보냈어요. 먼저 눈길이 가는 건?', '이 풍경으로 시작할 법한 영화 이야기', '사진 속 간판과 골목의 생김새'],
+    ['마을 안내문을 펼쳤어요. 어느 페이지부터 읽을까요?', '마을 이름에 담긴 뜻', '골목별 풍경이 담긴 사진 지도'],
+    ['조용해진 밤, 여행 영상을 짧게 본다면?', '어촌이 예술 마을로 바뀐 이유를 들려주는 편', '부두에서 시장까지 실제로 걸어보는 편'],
+    ['혼자 마을 지도를 들여다봐요. 어떤 표시가 더 궁금한가요?', '지도에 그려진 고래가 상징하는 것', '해안선을 따라 찍힌 전망대의 실제 위치']
+  ]},
+  {first: 'T', scenes: [
+    ['전설을 듣고 숙소 후보가 두 곳으로 좁혀졌어요. 결정 기준은?', '가격과 이동 거리에 같은 기준을 적용한다.', '각자 어떤 밤을 보내고 싶은지 듣고 고른다.'],
+    ['사진이 멋진 숙소 두 곳을 찾았어요. 친구들 의견이 갈리면?', '두 곳의 시설과 비용을 같은 표에 놓고 본다.', '각자 마음이 가는 이유를 먼저 들어 본다.'],
+    ['숙소 투표가 동점이에요. 마지막 한 표를 정하는 내 기준은?', '모두에게 일관되게 적용할 조건', '각자의 사정과 바라는 분위기'],
+    ['해변 숙소와 역 앞 숙소를 두고 고민해요. 내 제안은?', '예약 조건과 동선을 비교해 고르자.', '각자 더 편안하게 느끼는 곳을 이야기해 보자.'],
+    ['지도에 숙소 후보 두 곳을 표시했어요. 무엇으로 결정할까요?', '교통과 예산 조건을 더 많이 충족하는 곳', '일행이 각자 중요하게 여기는 점을 더 잘 담은 곳']
+  ]},
+  {first: 'I', scenes: [
+    ['숙소 비교를 마치고 드디어 기차에 탔어요. 쉬는 방법은?', '이어폰을 끼고 혼자 창밖을 바라본다.', '옆자리 친구와 간식을 나누며 이야기한다.'],
+    ['예약 내역을 확인하고 좌석에 앉았어요. 기운이 나는 쪽은?', '책을 펼치고 내 속도로 읽기', '친구와 서로의 근황을 주고받기'],
+    ['토요일 아침, 열차가 출발해요. 지금 기대되는 시간은?', '경치에 빠져 조용히 보내는 한 시간', '기차 안에서 다 같이 보내는 수다 시간'],
+    ['친구들과 방 배정을 마쳤어요. 이동 중 어떻게 충전할까요?', '잠깐 대화를 쉬고 나만의 음악 듣기', '일행과 여행 노래 이야기를 나누기'],
+    ['다들 마음에 드는 숙소를 골랐어요. 기차에서 즐기고 싶은 건?', '햇빛 드는 자리에 앉아 혼자 멍 때리기', '친구들 사이에 앉아 이야기꽃 피우기']
+  ]},
+  {first: 'S', scenes: [
+    ['창밖에 오래된 등대가 스쳐요. 먼저 궁금한 건?', '등대의 높이와 실제로 쓰인 재료', '등대가 뱃사람들에게 어떤 의미였을지'],
+    ['차창 너머 폐역이 눈에 들어와요. 보고 싶은 전시는?', '옛 승차권과 역무원들이 쓰던 물건', '사라진 역을 새롭게 상상한 작품'],
+    ['역에 내리자 작은 사진전이 열려요. 나의 시선은?', '사진마다 다른 파도의 색과 질감', '여러 사진을 연결하는 숨은 주제'],
+    ['친구가 항구 벽화를 가리켜요. 먼저 할 말은?', '가까이 보니 물고기 비늘을 타일로 만들었네.', '물고기 떼가 마을 사람들을 표현한 걸까?'],
+    ['친구들과 시장 입구의 옛 배를 구경해요. 더 알고 싶은 건?', '어떤 도구를 써서 배를 움직였는지', '이 배가 다니던 시절 마을은 어땠을지']
+  ]},
+  {first: 'P', scenes: [
+    ['등대 쪽 골목을 걷는데 비가 내려요. 우산을 펴고 나는?', '걷다가 보이는 재밌는 가게로 들어간다.', '비가 그칠 때까지 갈 곳과 순서를 정한다.'],
+    ['골목의 작은 전시관이 임시 휴관이에요. 이제?', '근처를 걷다가 눈길 가는 곳에 들른다.', '남은 일정을 확인하고 대체 코스를 정한다.'],
+    ['점심 약속까지 빈 시간이 생겼어요. 어떤 방식이 편해요?', '발길 닿는 대로 시간을 쓴다.', '갈 곳과 돌아올 시간을 먼저 정한다.'],
+    ['벽화 골목에 작은 야시장이 열린대요. 저녁 계획은?', '가서 분위기를 보고 먹거나 더 걸어 본다.', '시장에 갈 시간과 식사할 곳을 정해 둔다.'],
+    ['옛 항구에서 예정에 없던 공연을 발견했어요. 나는?', '일단 듣고 다음 행선지는 나중에 정한다.', '뒤 일정을 조정하고 볼 시간을 정한다.']
+  ]},
+  {first: 'F', scenes: [
+    ['우연히 들어간 가게에서 친구가 기념품을 깨뜨렸어요. 첫마디는?', '많이 놀랐지? 내가 옆에 있을게.', '직원에게 알리자. 처리 방법을 물어볼게.'],
+    ['걷다가 친구가 모자를 잃어버렸어요. 먼저 꺼낼 말은?', '아끼던 모자지? 속상하겠다.', '마지막으로 쓴 곳부터 짚어 보자.'],
+    ['친구가 찍은 단체 사진이 모두 흔들렸대요. 먼저 할 말은?', '다들 좋아할 사진을 남기고 싶었구나.', '어디서 다시 찍을 수 있는지 같이 보자.'],
+    ['정해 둔 식당이 문을 닫자 예약한 친구가 미안해해요. 나는?', '네가 신경 쓴 거 다 알아. 괜찮아.', '가까운 식당 중 지금 자리가 있는 곳을 찾아볼게.'],
+    ['맞춰 둔 버스를 놓쳐 친구가 난처해해요. 내 첫 반응은?', '마음 쓰였겠다. 같이 가니까 괜찮아.', '다음 버스와 걸어갈 때 걸리는 시간을 비교해 보자.']
+  ]},
+  {first: 'N', scenes: [
+    ['다음 날, 친구에게 엽서를 써요. 어떤 한 줄이 나답나요?', '우리 여행을 파도에 빗댄 한 줄', '어제 같이 본 바다의 색을 그대로 담은 한 줄'],
+    ['친구와 여행 사진에 제목을 붙여요. 내 스타일은?', '다음 장면을 상상하게 하는 제목', '장소와 순간을 생생하게 짚는 제목'],
+    ['일요일 아침, 여행책에서 한 장을 남긴다면?', '여행이 내게 남긴 의미를 담은 글', '기억하고 싶은 골목과 풍경의 스케치'],
+    ['친구가 어제 일을 여행 일기에 남기자고 해요. 나는?', '그 사건에서 떠오른 생각을 적는다.', '그 순간을 본 그대로 기록한다.'],
+    ['여행 기록을 모아 작은 앨범을 만들어요. 첫 장에는?', '여행 전체를 관통하는 한 문장', '여행의 시작을 보여주는 실제 기차표']
+  ]},
+  {first: 'E', scenes: [
+    ['엽서를 쓰고 나니 기차까지 40분이 남았어요. 무엇이 끌려요?', '친구들과 모여 서로 쓴 이야기를 나눈다.', '혼자 커피 한 잔을 들고 걷는다.'],
+    ['사진을 정리했어요. 마지막 여유 시간에는?', '친구들을 불러 사진을 함께 본다.', '혼자 마음에 드는 사진을 골라 본다.'],
+    ['숙소 체크아웃까지 잠깐 짬이 나요. 나의 휴식은?', '로비에서 일행과 도란도란 이야기하기', '창가에서 조용히 나만의 시간 갖기'],
+    ['일기를 덮고 역 앞에 도착했어요. 어디서 기다릴까요?', '사람들과 함께 앉아 수다 떨 수 있는 큰 테이블', '잠깐 혼자 쉴 수 있는 조용한 창가 자리'],
+    ['앨범을 챙기고 바다에 작별 인사를 해요. 더 즐거운 건?', '친구들과 어깨를 맞대고 추억 나누기', '혼자 물소리를 들으며 기억을 되새기기']
+  ]},
+  {first: 'T', scenes: [
+    ['친구들과 모인 자리에서 정산을 시작해요. 가장 먼저 볼 것은?', '모두에게 같은 계산 기준이 적용되는지', '각자 어떤 사정이 있었고 어떻게 느끼는지'],
+    ['친구가 단체 간식값을 자기는 빼도 되는지 물어요. 우선은?', '공동 지출로 볼 기준부터 정리한다.', '왜 그렇게 느꼈는지 친구의 사정을 듣는다.'],
+    ['여행 경비가 조금 남았어요. 사용처를 정할 때 내 기준은?', '처음 합의했던 원칙에 맞는지', '친구들이 어떤 마무리를 가장 뜻깊게 느낄지'],
+    ['기차를 기다리는데 정산 메시지가 왔어요. 비용 분담 기준은?', '같은 상황에 똑같이 적용할 수 있는 규칙', '사람마다 달랐던 상황과 부담'],
+    ['혼자 쉬던 중 선물 비용을 나눌지 의견을 물어와요. 먼저 생각하는 건?', '이전 지출과 일관되게 나눌 수 있는지', '준비한 사람과 받는 사람이 어떻게 느낄지']
+  ]},
+  {first: 'J', scenes: [
+    ['정산을 마치자 “다음엔 산에 갈까?”라는 말이 나와요. 나는?', '지금 가능한 주말을 맞춰서 하나 정하자.', '일단 찜해 두고 날씨 좋은 때 떠나자.'],
+    ['여행 회비를 정리하고 다음 여행 얘기가 나와요. 나의 방식은?', '날짜와 예산을 미리 정해 두기', '가고 싶을 때 모여서 정하기'],
+    ['귀가 열차 안에서 가을 여행 약속이 생겼어요. 편한 쪽은?', '달력에 후보 날짜를 적어 둔다.', '가을이 오면 그때 기분에 맞춰 정한다.'],
+    ['마지막 인사를 나누는데 다음 모임 장소를 묻네요. 나는?', '모두 헤어지기 전에 정해 놓자.', '가까워지면 새로 생긴 곳도 보고 정하자.'],
+    ['서로 고맙다는 말을 나누고 기차가 역에 도착해요. 다음 만남은?', '모일 날짜를 잡아 두면 기대하며 기다릴 수 있어.', '언제든 문득 보고 싶을 때 만나면 좋아.']
+  ]}
 ];
+const scale = ['A가 훨씬 더 가깝다', 'A가 조금 더 가깝다', '둘 다 비슷하다', 'B가 조금 더 가깝다', 'B가 훨씬 더 가깝다'];
 
 const summaries = {
   ISTJ:'확인할 수 있는 사실과 약속을 바탕으로 꾸준히 일을 마무리하는 편이에요.',
@@ -144,7 +231,10 @@ function show(screen, heading) {
 }
 
 function renderQuestion() {
-  const [, , prompt, ...options] = questions[current];
+  const branch = current === 0 ? 0 : answers[current - 1];
+  const [prompt, choiceA, choiceB] = questions[current].scenes[branch];
+  id('choice-a').textContent = choiceA;
+  id('choice-b').textContent = choiceB;
   id('chapter').textContent = chapters[Math.floor(current / 4)];
   id('count').textContent = `${current + 1} / ${questions.length} 문항`;
   const completed = answers.filter(answer => answer !== null).length;
@@ -152,7 +242,7 @@ function renderQuestion() {
   id('progress').value = completed;
   id('question').textContent = prompt;
   optionButtons.forEach((button, index) => {
-    button.textContent = options[index];
+    button.textContent = scale[index];
     button.setAttribute('aria-pressed', String(answers[current] === index));
   });
   id('back').disabled = current === 0;
@@ -161,23 +251,29 @@ function renderQuestion() {
 }
 
 function calculate() {
-  const counts = dimensions.map(() => [0, 0]);
-  questions.forEach(([axis, first], index) => {
-    const firstSide = dimensions[axis].indexOf(first);
-    const side = answers[index] === 0 ? firstSide : 1 - firstSide;
-    counts[axis][side]++;
+  const totals = dimensions.map(() => 0);
+  const ranges = dimensions.map(() => 0);
+  questions.forEach(({first}, index) => {
+    const axis = dimensions.findIndex(([left, right]) => first === left || first === right);
+    const direction = dimensions[axis][0] === first ? 1 : -1;
+    // Five positions run from +2 (strong A) through 0 to -2 (strong B).
+    totals[axis] += (2 - answers[index]) * direction;
+    ranges[axis] += 2;
   });
-  const type = counts.map(([left, right], axis) => dimensions[axis][left > right ? 0 : 1]).join('');
-  return { counts, type };
+  const type = totals.map((score, axis) => {
+    if (score === 0) return 'X';
+    return dimensions[axis][score > 0 ? 0 : 1];
+  }).join('');
+  const shares = totals.map((score, axis) => Math.round(50 + 50 * score / ranges[axis]));
+  return { type, shares };
 }
 
 function renderResult() {
-  const { counts, type } = calculate();
+  const { type, shares } = calculate();
   id('type').textContent = type;
-  id('description').textContent = summaries[type];
-  id('axes').replaceChildren(...counts.map(([left, right], axis) => {
+  id('description').textContent = summaries[type] ?? 'X는 두 성향의 점수가 같은 자리예요. 아래에서 어느 쪽으로 얼마나 기울었는지 살펴보세요.';
+  id('axes').replaceChildren(...shares.map((share, axis) => {
     const [a, b, labelA, labelB] = dimensions[axis];
-    const share = Math.round(left * 100 / (left + right));
     const row = document.createElement('div');
     row.innerHTML = `<div class="axis-label"><span>${a} ${labelA} ${share}%</span><span>${100 - share}% ${labelB} ${b}</span></div><div class="bar" aria-hidden="true"><span style="width:${share}%"></span></div>`;
     return row;
@@ -186,6 +282,7 @@ function renderResult() {
 }
 
 optionButtons.forEach((button, index) => button.addEventListener('click', () => {
+  if (answers[current] !== index) answers.fill(null, current + 1);
   answers[current] = index;
   renderQuestion();
 }));
