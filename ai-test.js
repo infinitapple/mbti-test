@@ -91,46 +91,48 @@ for (let round = 0; round < 5; round++) {
 }
 
 const byId = id => document.getElementById(id);
-const questionnaire = [
-  '당신은 이 평가의 응답자인 AI 모델입니다. 각 작업 상황에서 당신이 실제 첫 답변으로 채택할 방식에 더 가까운 선택지를 하나 고르세요. 두 방식 모두 쓸 수 있더라도 먼저 할 일을 기준으로 답하세요.',
-  '각 문항을 독립적으로 판단하세요. 사용자의 개인 성향을 대신 추측하지 마세요.',
-  ...questions.map(q => q.id + '. ' + q.prompt + '\nA. ' + q.options[0] + '\nB. ' + q.options[1]),
-  '답안은 JSON 객체 하나로 반환하세요. form 값은 "' + formVersion + '"이고, answers 값은 Q01부터 Q30까지 각 문항 번호를 키로, 선택한 "A" 또는 "B"를 값으로 갖는 객체입니다. 모든 문항을 포함하세요.'
-].join('\n\n');
-byId('prompt').value = questionnaire;
+function renderQuestionnaire() {
+  byId('prompt').value = [
+    t('당신은 이 평가의 응답자인 AI 모델입니다. 각 작업 상황에서 당신이 실제 첫 답변으로 채택할 방식에 더 가까운 선택지를 하나 고르세요. 두 방식 모두 쓸 수 있더라도 먼저 할 일을 기준으로 답하세요.'),
+    t('각 문항을 독립적으로 판단하세요. 사용자의 개인 성향을 대신 추측하지 마세요.'),
+    ...questions.map(q => q.id + '. ' + t(q.prompt) + '\nA. ' + t(q.options[0]) + '\nB. ' + t(q.options[1])),
+    t('답안은 JSON 객체 하나로 반환하세요. form 값은 "{version}"이고, answers 값은 Q01부터 Q30까지 각 문항 번호를 키로, 선택한 "A" 또는 "B"를 값으로 갖는 객체입니다. 모든 문항을 포함하세요.', {version: formVersion})
+  ].join('\n\n');
+}
+renderQuestionnaire();
 
 byId('copy').addEventListener('click', async () => {
   try {
-    await navigator.clipboard.writeText(questionnaire);
-    byId('copy-status').textContent = '복사했어요. 평가할 AI의 대화창에 붙여넣으세요.';
+    await navigator.clipboard.writeText(byId('prompt').value);
+    byId('copy-status').textContent = t('복사했어요. 평가할 AI의 대화창에 붙여넣으세요.');
   } catch {
     byId('preview').open = true;
     byId('prompt').focus();
     byId('prompt').select();
-    byId('copy-status').textContent = '질문지 전체를 선택했어요. 기기의 복사 기능을 사용하세요.';
+    byId('copy-status').textContent = t('질문지 전체를 선택했어요. 기기의 복사 기능을 사용하세요.');
   }
 });
 
 function readAnswers(text) {
   const trimmed = text.trim();
-  if (!trimmed) throw new Error('평가할 AI가 돌려준 JSON 답안을 붙여넣어 주세요.');
+  if (!trimmed) throw new Error(t('평가할 AI가 돌려준 JSON 답안을 붙여넣어 주세요.'));
   const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
   let submission;
   try {
     submission = JSON.parse(fenced ? fenced[1] : trimmed);
   } catch {
-    throw new Error('JSON을 읽을 수 없어요. 첫 {부터 마지막 }까지 답안 전체를 복사해 주세요.');
+    throw new Error(t('JSON을 읽을 수 없어요. 첫 {부터 마지막 }까지 답안 전체를 복사해 주세요.'));
   }
-  if (submission?.form !== formVersion) throw new Error('질문지 버전을 확인해 주세요. 이 페이지의 질문지로 받은 답안이 필요해요.');
+  if (submission?.form !== formVersion) throw new Error(t('질문지 버전을 확인해 주세요. 이 페이지의 질문지로 받은 답안이 필요해요.'));
   const answers = submission.answers;
-  if (!answers || typeof answers !== 'object' || Array.isArray(answers)) throw new Error('answers 항목에 문항 번호와 A 또는 B 응답이 필요해요.');
+  if (!answers || typeof answers !== 'object' || Array.isArray(answers)) throw new Error(t('answers 항목에 문항 번호와 A 또는 B 응답이 필요해요.'));
   const normalized = {};
   for (const {id} of questions) {
     const choice = answers[id];
-    if (typeof choice !== 'string' || !/^[AB]$/i.test(choice.trim())) throw new Error(id + '의 응답을 확인해 주세요. 각 문항에는 A 또는 B 한 개가 필요해요.');
+    if (typeof choice !== 'string' || !/^[AB]$/i.test(choice.trim())) throw new Error(t('{item}의 응답을 확인해 주세요. 각 문항에는 A 또는 B 한 개가 필요해요.', {item: id}));
     normalized[id] = choice.trim().toUpperCase();
   }
-  if (Object.keys(answers).length !== questions.length) throw new Error('문항 번호는 Q01부터 Q30까지예요. 추가된 항목을 확인해 주세요.');
+  if (Object.keys(answers).length !== questions.length) throw new Error(t('문항 번호는 Q01부터 Q30까지예요. 추가된 항목을 확인해 주세요.'));
   return normalized;
 }
 
@@ -141,7 +143,7 @@ function element(tag, text, className) {
   return node;
 }
 
-function renderReport(answers, model) {
+function renderReport(answers, model, enter = true) {
   const sections = dimensions.map((dimension, axis) => {
     const counts = [0, 0];
     const list = element('ul', '', 'evidence');
@@ -149,26 +151,26 @@ function renderReport(answers, model) {
       const position = answers[q.id] === 'A' ? 0 : 1;
       counts[q.reversed ? 1 - position : position]++;
       const item = element('li', '');
-      item.append(element('strong', q.id + ' · ' + q.prompt), q.options[position]);
+      item.append(element('strong', q.id + ' · ' + t(q.prompt)), t(q.options[position]));
       list.append(item);
     }
     const leading = counts[0] > counts[1] ? 0 : 1;
     const section = element('section', '', 'metric');
-    const heading = element('h3', dimension.name);
-    heading.append(element('span', ' · ' + dimension.poles[leading]));
+    const heading = element('h3', t(dimension.name));
+    heading.append(element('span', ' · ' + t(dimension.poles[leading])));
     const spread = Math.max(...counts);
     const frequency = spread === 3 ? '두 방식이 3대 2로 갈렸어요.' : spread === 4 ? '다섯 상황 중 네 번 같은 방식을 골랐어요.' : '다섯 상황 모두 같은 방식을 골랐어요.';
     const details = element('details', '');
-    details.append(element('summary', '선택한 답변 5개 보기'), list);
+    details.append(element('summary', t('선택한 답변 5개 보기')), list);
     section.append(heading,
-      element('p', dimension.poles[0] + ' ' + counts[0] + '회 · ' + dimension.poles[1] + ' ' + counts[1] + '회', 'counts'),
-      element('p', frequency + ' ' + dimension.notes[leading]), details);
+      element('p', t('{left} {a}회 · {right} {b}회', {left: t(dimension.poles[0]), a: counts[0], right: t(dimension.poles[1]), b: counts[1]}), 'counts'),
+      element('p', t(frequency) + ' ' + t(dimension.notes[leading])), details);
     return section;
   });
   byId('report').replaceChildren(...sections);
-  byId('result-title').textContent = (model || 'AI 모델') + '의 응답 성향';
+  byId('result-title').textContent = t('{model}의 응답 성향', {model: model || t('AI 모델')});
   byId('results').hidden = false;
-  byId('result-title').focus();
+  if (enter) byId('result-title').focus();
 }
 
 byId('evaluate').addEventListener('input', () => {
@@ -191,4 +193,20 @@ byId('evaluate').addEventListener('submit', event => {
   byId('error').textContent = '';
   byId('response').removeAttribute('aria-invalid');
   renderReport(answers, byId('model').value.trim());
+});
+
+document.addEventListener('quizlanguagechange', () => {
+  renderQuestionnaire();
+  byId('copy-status').textContent = '';
+  if (!byId('results').hidden) {
+    const expanded = [...byId('report').querySelectorAll('details')].map(item => item.open);
+    renderReport(readAnswers(byId('response').value), byId('model').value.trim(), false);
+    byId('report').querySelectorAll('details').forEach((item, i) => { item.open = expanded[i]; });
+  } else if (byId('response').hasAttribute('aria-invalid')) {
+    try {
+      readAnswers(byId('response').value);
+    } catch (error) {
+      byId('error').textContent = error.message;
+    }
+  }
 });

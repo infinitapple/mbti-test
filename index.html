@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="사람은 일상의 선택으로 MBTI와 협력 스타일을, AI 모델은 작업 상황에 대한 답변으로 응답 성향을 살펴보세요.">
-<title>나의 결 · 사람과 AI의 성향 테스트</title>
+<title>성향 테스트</title>
 <style>
 :root{color-scheme:light;--ink:#172b27;--mute:#4c6057;--paper:#f5f7ef;--line:#d5ded1;--green:#174d3d;--lime:#e6f288;font:100%/1.65 system-ui,sans-serif}
 *{box-sizing:border-box}
@@ -12,7 +12,6 @@ body{margin:0;background:var(--paper);color:var(--ink)}
 .shell{width:min(1020px,calc(100% - 40px));margin:auto}
 header{display:flex;justify-content:space-between;align-items:center;padding:24px 0;border-bottom:1px solid var(--line)}
 .brand{font-size:1.25rem;font-weight:850;letter-spacing:-.07em}
-.chip{color:var(--green);border:1px solid var(--line);border-radius:100px;padding:4px 12px;font-size:.875rem;font-weight:650}
 main{padding:clamp(32px,6vw,72px) 0}
 .mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:30px}
 .mode{padding:clamp(22px,4vw,38px);background:#fff;border:1px solid var(--line);border-radius:22px;display:flex;flex-direction:column;align-items:flex-start}
@@ -81,22 +80,27 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-si
 [hidden]{display:none!important}
 @media(max-width:680px){.mode-grid{grid-template-columns:1fr}}
 </style>
+<link rel="stylesheet" href="./language.css">
 </head>
 <body>
 <div class="shell">
-<header><span class="brand">나의 결</span><span class="chip">성향 테스트</span></header>
+<header><span class="brand">성향 테스트</span><nav class="language-switch" aria-label="언어 선택">
+<button type="button" data-lang="ko" lang="ko" aria-label="한국어" title="한국어"><img src="./flags/kr.png" alt="" width="27" height="18"></button>
+<button type="button" data-lang="ja" lang="ja" aria-label="日本語" title="日本語"><img src="./flags/jp.png" alt="" width="27" height="18"></button>
+<button type="button" data-lang="en" lang="en" aria-label="English" title="English"><img src="./flags/us.png" alt="" width="27" height="14"></button>
+</nav></header>
 <main>
 <section id="home">
 <h1 tabindex="-1">누가 답할까요?</h1>
 <div class="mode-grid">
 <section class="mode"><h2>나의 일상 MBTI</h2>
 <p class="intro">친구의 고민을 듣거나 주말 계획을 세울 때, 나와 가까운 행동을 골라 보세요. MBTI와 협력 스타일을 알려드려요.</p>
-<p class="facts"><span id="total"></span>문항 · 내가 직접 응답</p>
+<p class="facts"><span id="total"></span></p>
 <button id="start" type="button">사람용 테스트 시작</button></section>
 <section class="mode ai"><h2>AI 모델의 응답 성향</h2>
 <p class="intro">같은 부탁에도 모델마다 첫 답변이 달라요. 평소 쓰는 AI에게 질문지를 보내고, 어떤 응답 방식을 자주 고르는지 살펴보세요.</p>
 <p class="facts">30문항 · AI 모델이 응답</p>
-<a href="./ai.html">AI용 테스트 열기</a></section>
+<a data-language-link href="./ai.html">AI용 테스트 열기</a></section>
 </div>
 </section>
 <section class="card" id="quiz" hidden>
@@ -145,6 +149,8 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-si
 </main>
 <footer>자기 탐색을 위한 간이 테스트입니다. 응답은 서버로 전송되지 않습니다.</footer>
 </div>
+<script src="./translations.js"></script>
+<script src="./language.js"></script>
 <script>
 const dimensions = [
   ['E', 'I', '외향', '내향'],
@@ -285,7 +291,10 @@ try {
 } catch {}
 let current = 0;
 let feedbackTimer;
-id('total').textContent = pools.length;
+function renderTotal() {
+  id('total').textContent = t('{n}문항 · 내가 직접 응답', {n: pools.length});
+}
+renderTotal();
 id('progress').max = pools.length;
 
 function shuffled(items) {
@@ -323,15 +332,15 @@ function sceneAt(step) {
 
 function renderQuestion() {
   const {theme, prompt, choices} = sceneAt(current);
-  id('chapter').textContent = theme;
-  id('count').textContent = `${current + 1} / ${questions.length} 문항`;
+  id('chapter').textContent = t(theme);
+  id('count').textContent = t('{step} / {total} 문항', {step: current + 1, total: questions.length});
   const completed = answers.filter(answer => answer !== null).length;
-  id('completed').textContent = `${completed}개 응답`;
+  id('completed').textContent = t('{n}개 응답', {n: completed});
   id('progress').value = completed;
-  id('question').textContent = prompt;
+  id('question').textContent = t(prompt);
   optionButtons.forEach((button, index) => {
     const choiceIndex = questions[current].order[index];
-    button.textContent = choices[choiceIndex];
+    button.textContent = t(choices[choiceIndex]);
     button.setAttribute('aria-pressed', String(answers[current] === choiceIndex));
   });
   id('back').disabled = current === 0;
@@ -361,23 +370,23 @@ function renderTeamStyle() {
   const support = questions.findIndex(question => question.topic === 'support');
   const route = answers[detour] === 0 ? 'explore' : 'arrange';
   const style = teamStyles[route][answers[support]];
-  id('style-name').textContent = style.name;
-  id('style-detail').textContent = style.detail;
+  id('style-name').textContent = t(style.name);
+  id('style-detail').textContent = t(style.detail);
   id('style-evidence').replaceChildren(...[detour, support].map(step => {
     const item = document.createElement('li');
     const scene = sceneAt(step);
     const prompt = document.createElement('span');
     prompt.className = 'evidence-prompt';
-    prompt.textContent = scene.prompt;
-    item.append(prompt, scene.choices[answers[step]]);
+    prompt.textContent = t(scene.prompt);
+    item.append(prompt, t(scene.choices[answers[step]]));
     return item;
   }));
-  id('style-tip').textContent = style.tip;
+  id('style-tip').textContent = t(style.tip);
 }
 
 function renderCompanions(type) {
   const [energy, information, decision, pace] = type;
-  const sharedPace = pace === 'J' ? '약속을 미리 잡는' : '만나서 할 일을 고르는';
+  const sharedPace = pace === 'J' ? '약속을 미리 잡는 친구' : '만나서 할 일을 고르는 친구';
   const perspective = information === 'S'
     ? '내가 찾아낸 세부 사항을 친구가 새로운 아이디어로 연결할 수 있어요.'
     : '내가 떠올린 아이디어에 친구가 구체적인 사례를 더할 수 있어요.';
@@ -386,7 +395,7 @@ function renderCompanions(type) {
     : '나는 친구들이 원하는 분위기를 듣고, 상대는 비용과 거리를 따져 모임 장소를 고를 수 있어요.';
   const examples = [
     {type: energy + (information === 'S' ? 'N' : 'S') + decision + pace,
-      reason: `${sharedPace} 친구`, text: perspective},
+      reason: sharedPace, text: perspective},
     {type: energy + information + (decision === 'T' ? 'F' : 'T') + pace,
       reason: '결정할 때 서로 보완하는 친구', text: teamwork}
   ];
@@ -394,29 +403,38 @@ function renderCompanions(type) {
     const card = document.createElement('div');
     card.className = 'match-card';
     const heading = document.createElement('h4');
-    heading.textContent = `${example.type} · ${example.reason}`;
+    heading.textContent = `${example.type} · ${t(example.reason)}`;
     const note = document.createElement('p');
-    note.textContent = example.text;
+    note.textContent = t(example.text);
     card.append(heading, note);
     return card;
   }));
 }
 
-function renderResult() {
+function renderResult(enter = true) {
   const { type, shares } = calculate();
-  for (const details of id('result').querySelectorAll('details')) details.open = false;
+  if (enter) {
+    for (const details of id('result').querySelectorAll('details')) details.open = false;
+  }
   id('type').textContent = type;
-  id('description').textContent = summaries[type];
+  id('description').textContent = t(summaries[type]);
   renderTeamStyle();
   renderCompanions(type);
   id('axes').replaceChildren(...shares.map((share, axis) => {
     const [a, b, labelA, labelB] = dimensions[axis];
     const row = document.createElement('div');
-    row.innerHTML = `<div class="axis-label"><span>${a} ${labelA} ${share}%</span><span>${100 - share}% ${labelB} ${b}</span></div><div class="bar" aria-hidden="true"><span style="width:${share}%"></span></div><p class="axis-detail">${traitNotes[type[axis]]}</p>`;
+    row.innerHTML = `<div class="axis-label"><span>${a} ${t(labelA)} ${share}%</span><span>${100 - share}% ${t(labelB)} ${b}</span></div><div class="bar" aria-hidden="true"><span style="width:${share}%"></span></div><p class="axis-detail">${t(traitNotes[type[axis]])}</p>`;
     return row;
   }));
-  show('result', id('type'));
+  if (enter) show('result', id('type'));
 }
+
+document.addEventListener('quizlanguagechange', () => {
+  renderTotal();
+  clearFeedback();
+  if (!id('quiz').hidden) renderQuestion();
+  if (!id('result').hidden) renderResult(false);
+});
 
 id('start').addEventListener('click', startQuiz);
 id('restart').addEventListener('click', startQuiz);
@@ -459,7 +477,7 @@ optionButtons.forEach((button, index) => button.addEventListener('click', () => 
   }
 
   const popup = id(last ? 'result-feedback' : 'feedback');
-  popup.textContent = `직전 선택 · ${dimension[side + 2]}(${dimension[side]})`;
+  popup.textContent = t('직전 선택 · {trait}({letter})', {trait: t(dimension[side + 2]), letter: dimension[side]});
   feedbackTimer = setTimeout(clearFeedback, 1000);
 }));
 </script>
