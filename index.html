@@ -23,8 +23,8 @@ h2{font-size:clamp(1.65rem,5vw,2.35rem);line-height:1.24;letter-spacing:-.06em;w
 .intro{color:var(--mute);max-width:31em;word-break:keep-all}
 .facts{margin:24px 0;color:var(--mute);font-weight:650}
 button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:13px 22px;font-weight:750;background:var(--green);color:white}
-button:hover{background:#22664f}
-button:focus-visible,h1:focus-visible,h2:focus-visible{outline:3px solid #658601;outline-offset:4px}
+button:where(:not(.option)):hover{background:#22664f}
+button:focus-visible,summary:focus-visible,h1:focus-visible,h2:focus-visible{outline:3px solid #658601;outline-offset:4px}
 button:disabled{opacity:.44;cursor:default}
 .secondary{background:transparent;color:var(--green);border:1px solid var(--line)}
 .secondary:hover{background:#e4ede0}
@@ -41,14 +41,11 @@ progress::-webkit-progress-bar{background:#e7ede2}
 progress::-webkit-progress-value{background:var(--green)}
 progress::-moz-progress-bar{background:var(--green)}
 .options,.axes{display:grid;gap:10px}
-.option{text-align:left;background:#f5f7ef;color:var(--ink);border:1px solid var(--line);font-weight:650}
-.chapter,.option{display:flex;align-items:center;gap:12px}
-.scene-icon,.choice-icon{flex:none;display:grid;place-items:center;width:2em;height:2em;border-radius:12px;line-height:1}
-.scene-icon{font-size:1.35rem;background:#e6f288}
-.choice-icon{font-size:1.3rem;background:#e1eadb}
-.option:nth-child(2) .choice-icon{background:#e7e1f0}
-.choice-text{min-width:0;word-break:keep-all;overflow-wrap:anywhere}
-.option:hover{background:#e6f288;border-color:#778d34}
+.option{
+  text-align:left;background:#f5f7ef;color:var(--ink);border:1px solid var(--line);font-weight:650;
+  min-height:48px;word-break:keep-all;overflow-wrap:anywhere;-webkit-tap-highlight-color:transparent;
+}
+.option:active{background:#e2eadc}
 .option[aria-pressed=true]{background:var(--green);color:white}
 .scene-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px}
 .feedback{
@@ -59,20 +56,27 @@ progress::-moz-progress-bar{background:var(--green)}
 .feedback:empty{opacity:0}
 .feedback:empty::before{content:"\00a0"}
 .actions{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:24px}
-.type{font-size:clamp(3rem,12vw,6rem);font-weight:900;letter-spacing:-.08em;line-height:1.1;color:var(--green);margin:8px 0}
-.report-section{margin-top:30px;padding-top:22px;border-top:1px solid var(--line)}
-.report-section h3{margin:0 0 12px;font-size:1.3rem;letter-spacing:-.04em}
-.report-section h4{margin:0 0 4px;font-size:1.05rem}
-.style-card{padding:18px;border-radius:14px;background:var(--paper)}
-.style-card + .evidence-heading{margin-top:14px}
-.evidence{margin:14px 0;padding-left:1.3em}
-.evidence li+li{margin-top:5px}
-.axes{margin:14px 0;gap:16px}
-.axis-detail,.match-note{color:var(--mute)}
-.match-card{margin-top:14px;border-left:3px solid #a9d4bc;padding-left:13px}
-.axis-label{display:flex;justify-content:space-between;gap:12px;color:var(--mute);font-size:.9rem}
-.bar{height:8px;border-radius:99px;background:#cbdacb;overflow:hidden;margin:4px 0}
+#result{word-break:keep-all;overflow-wrap:anywhere}
+.type{font-size:clamp(2.75rem,9vw,4.5rem);line-height:1;letter-spacing:-.065em;color:var(--green);margin:14px 0}
+#description{font-size:1.1rem;line-height:1.6;max-width:34em}
+.report-section{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.report-section h3{margin:0 0 12px;font-size:1.1rem;letter-spacing:-.035em}
+.style-card{margin-top:22px;padding:18px;border-radius:14px;background:#edf3e7}
+.style-card h3{margin:3px 0 7px;font-size:1.35rem;line-height:1.4}
+.style-card .label{color:var(--green);font-size:.9rem;font-weight:700}
+#style-detail,.match-card p,.axis-detail{color:var(--mute)}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--green);font-weight:700;padding:6px 0}
+.evidence{padding-left:1.3em;margin:6px 0 12px}
+.evidence li+li{margin-top:10px}
+.evidence-prompt{display:block;color:var(--mute);font-size:.925rem}
+.axes{margin:14px 0;gap:14px}
+.axis-label{display:flex;justify-content:space-between;gap:10px;font-size:.925rem}
+.bar{height:6px;border-radius:8px;background:#cbdacb;overflow:hidden;margin:5px 0}
 .bar span{display:block;height:100%;background:var(--green)}
+.match-card{margin:14px 0}
+.match-card h4{margin:0 0 3px;font-size:1.05rem;color:var(--green)}
+.match-note{color:var(--mute);font-size:.9rem}
 footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-size:.875rem}
 [hidden]{display:none!important}
 @media(max-width:680px){.hero{grid-template-columns:1fr;gap:28px}.art{width:min(100%,300px)}}
@@ -89,19 +93,19 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-si
 <p class="facts"><span id="total"></span>가지 선택 · 약 2분</p>
 <button id="start" type="button">테스트 시작</button>
 </div>
-<div class="art" aria-hidden="true"><span class="tile">💬</span><span class="tile">🎨</span><span class="tile">🎧</span><span class="tile">🌱</span></div>
+<div class="art" aria-hidden="true"><span class="tile">M</span><span class="tile">B</span><span class="tile">T</span><span class="tile">I</span></div>
 </section>
 <section class="card" id="quiz" hidden>
 <div class="counter"><span id="count"></span><span id="completed"></span></div>
 <progress id="progress" value="0" aria-label="테스트 진행률"></progress>
 <div class="scene-heading">
-<p class="eyebrow chapter"><span id="scene-icon" class="scene-icon" aria-hidden="true"></span><span id="chapter"></span></p>
+<p class="eyebrow" id="chapter"></p>
 <p id="feedback" class="feedback" role="status" aria-atomic="true"></p>
 </div>
 <h2 id="question" tabindex="-1"></h2>
 <div class="options" aria-labelledby="question" role="group">
-<button class="option" type="button"><span class="choice-icon" aria-hidden="true"></span><span class="choice-text"></span></button>
-<button class="option" type="button"><span class="choice-icon" aria-hidden="true"></span><span class="choice-text"></span></button>
+<button class="option" type="button"></button>
+<button class="option" type="button"></button>
 </div>
 <div class="actions"><button class="secondary" id="back" type="button">이전</button></div>
 </section>
@@ -112,22 +116,25 @@ footer{border-top:1px solid var(--line);padding:20px 0;color:var(--mute);font-si
 </div>
 <h2 class="type" id="type" tabindex="-1"></h2>
 <p id="description"></p>
-<section class="report-section">
-<h3>함께할 때 나의 협력 스타일</h3>
-<div class="style-card"><h4 id="style-name"></h4><p id="style-detail"></p></div>
-<h4 class="evidence-heading">이 스타일을 보여 준 두 선택</h4>
+<section class="style-card">
+<p class="label">나의 협력 스타일</p>
+<h3 id="style-name"></h3>
+<p id="style-detail"></p>
+<details>
+<summary>이 결과가 나온 두 가지 선택</summary>
 <ul id="style-evidence" class="evidence"></ul>
 <p id="style-tip"></p>
+</details>
 </section>
-<section class="report-section">
-<h3>네 글자로 읽는 내 성향</h3>
-<p class="intro">각 비율은 해당 성향을 묻는 세 장면에서 어느 쪽을 골랐는지 보여줘요.</p>
+<details class="report-section">
+<summary>네 가지 성향별 응답 보기</summary>
+<p class="axis-detail">각 성향에 답한 세 문항의 선택 비율이에요.</p>
 <div class="axes" id="axes"></div>
-</section>
+</details>
 <section class="report-section">
-<h3>나와 호흡이 맞을 수 있는 MBTI</h3>
-<p class="match-note">함께 일하거나 놀 때 어떤 점이 잘 맞을지 떠올려 본 예시예요. 실제 관계는 서로의 취향과 소통 방식에 따라 달라져요.</p>
+<h3>함께하면 잘 맞을 수 있는 유형</h3>
 <div id="companions"></div>
+<p class="match-note">이번 선택을 바탕으로 떠올린 협력 예시예요.</p>
 </section>
 <div class="actions"><button class="secondary" id="review" type="button">마지막 답 수정</button><button id="restart" type="button">새 질문으로 다시 하기</button></div>
 </section>
@@ -143,112 +150,112 @@ const dimensions = [
 ];
 
 // Each pool asks about the same preference in four different situations.
-function scene(theme, icon, prompt, first, second) {
-  return {theme, icon, prompt, choices: [first, second]};
+function scene(theme, prompt, first, second) {
+  return {theme, prompt, choices: [first, second]};
 }
 
 const pools = [
   {first: 'E', scenes: [
-    scene('친구 모임', '🎈', '파티에 조금 일찍 도착했어요. 어떻게 기다릴까요?', ['👋', '먼저 온 사람에게 인사를 건넨다.'], ['🪟', '편한 자리에 앉아 잠시 분위기를 살핀다.']),
-    scene('취미', '🏸', '운동 수업이 끝나고 20분이 남았어요. 어떤 쪽이 더 즐거울까요?', ['🗣️', '같이 운동한 사람들과 오늘 얘기를 나눈다.'], ['🎧', '혼자 음악을 들으며 천천히 몸을 푼다.']),
-    scene('학교·직장', '☕', '긴 회의가 끝났어요. 쉬는 시간에 기운이 나는 쪽은?', ['💬', '동료와 커피를 마시며 잡담하기'], ['🌿', '조용한 곳에서 혼자 머리 식히기']),
-    scene('문화생활', '🎭', '공연이 끝나고 여운이 남았어요. 지금 하고 싶은 일은?', ['🗨️', '같이 본 사람에게 감상을 바로 이야기한다.'], ['🚶', '잠시 혼자 걸으며 장면을 되새긴다.'])
+    scene('친구 모임', '파티에 조금 일찍 도착했어요. 어떻게 기다릴까요?', '먼저 온 사람에게 인사를 건넨다.', '편한 자리에 앉아 잠시 분위기를 살핀다.'),
+    scene('취미', '운동 수업이 끝나고 20분이 남았어요. 어떤 쪽이 더 즐거울까요?', '같이 운동한 사람들과 오늘 얘기를 나눈다.', '혼자 음악을 들으며 천천히 몸을 푼다.'),
+    scene('학교·직장', '긴 회의가 끝났어요. 쉬는 시간에 기운이 나는 쪽은?', '동료와 커피를 마시며 잡담하기', '조용한 곳에서 혼자 머리 식히기'),
+    scene('문화생활', '공연이 끝나고 여운이 남았어요. 지금 하고 싶은 일은?', '같이 본 사람에게 감상을 바로 이야기한다.', '잠시 혼자 걸으며 장면을 되새긴다.')
   ]},
   {first: 'I', scenes: [
-    scene('집에서', '🛋️', '오랜만에 저녁이 통째로 비었어요. 마음이 가는 쪽은?', ['📖', '혼자 읽던 책에 푹 빠지기'], ['📞', '친구에게 전화해서 밀린 이야기 나누기']),
-    scene('여행', '🚆', '기차가 출발했어요. 한 시간 동안 어떻게 쉬고 싶나요?', ['🪟', '이어폰을 끼고 창밖을 바라본다.'], ['🍪', '친구와 과자를 나눠 먹으며 이야기한다.']),
-    scene('취미', '🎨', '그림 그릴 오후가 생겼어요. 어디서 그릴까요?', ['🖌️', '조용한 책상에 혼자 자리를 잡는다.'], ['👥', '동네 드로잉 모임에서 함께 그린다.']),
-    scene('일상', '🥪', '점심시간에 나를 충전해 줄 자리는?', ['🌳', '혼자 쉬기 좋은 공원의 벤치'], ['🍽️', '이야기가 오가는 동료들의 테이블'])
+    scene('집에서', '오랜만에 저녁이 통째로 비었어요. 마음이 가는 쪽은?', '혼자 읽던 책에 푹 빠지기', '친구에게 전화해서 밀린 이야기 나누기'),
+    scene('여행', '기차가 출발했어요. 한 시간 동안 어떻게 쉬고 싶나요?', '이어폰을 끼고 창밖을 바라본다.', '친구와 과자를 나눠 먹으며 이야기한다.'),
+    scene('취미', '그림 그릴 오후가 생겼어요. 어디서 그릴까요?', '조용한 책상에 혼자 자리를 잡는다.', '동네 드로잉 모임에서 함께 그린다.'),
+    scene('일상', '점심시간에 나를 충전해 줄 자리는?', '혼자 쉬기 좋은 공원의 벤치', '이야기가 오가는 동료들의 테이블')
   ]},
   {first: 'E', scenes: [
-    scene('문화생활', '🎬', '좋아하는 영화의 팬 모임에 왔어요. 먼저 뭘 할까요?', ['🎤', '옆 사람에게 가장 좋아하는 장면을 묻는다.'], ['🖼️', '전시된 스틸 사진을 혼자 먼저 둘러본다.']),
-    scene('게임', '🎮', '새 게임의 첫 판을 어떻게 시작하고 싶나요?', ['🎙️', '친구와 음성 채팅을 켜고 같이 시작한다.'], ['🕹️', '혼자 접속해서 내 속도로 즐긴다.']),
-    scene('일상', '🐕', '반려견 산책길에서 이웃을 만났어요. 더 끌리는 쪽은?', ['👋', '같이 걸으며 요즘 소식을 나눈다.'], ['🌲', '반갑게 인사하고 조용한 산책을 이어간다.']),
-    scene('학교·직장', '💡', '발표 아이디어를 떠올릴 때 내게 편한 방식은?', ['💬', '누군가와 말하다가 생각을 정리한다.'], ['📝', '혼자 적으며 생각을 정리한 뒤 나눈다.'])
+    scene('문화생활', '좋아하는 영화의 팬 모임에 왔어요. 먼저 뭘 할까요?', '옆 사람에게 가장 좋아하는 장면을 묻는다.', '전시된 스틸 사진을 혼자 먼저 둘러본다.'),
+    scene('게임', '새 게임의 첫 판을 어떻게 시작하고 싶나요?', '친구와 음성 채팅을 켜고 같이 시작한다.', '혼자 접속해서 내 속도로 즐긴다.'),
+    scene('일상', '반려견 산책길에서 이웃을 만났어요. 더 끌리는 쪽은?', '같이 걸으며 요즘 소식을 나눈다.', '반갑게 인사하고 조용한 산책을 이어간다.'),
+    scene('학교·직장', '발표 아이디어를 떠올릴 때 내게 편한 방식은?', '누군가와 말하다가 생각을 정리한다.', '혼자 적으며 생각을 정리한 뒤 나눈다.')
   ]},
   {first: 'S', scenes: [
-    scene('요리', '🍜', '처음 보는 국수를 맛봤어요. 친구에게 어떻게 설명할까요?', ['🥢', '면의 굵기와 국물 맛을 콕 집어 말한다.'], ['🎞️', '먹는 순간 떠오른 장면에 빗대어 말한다.']),
-    scene('문화생활', '📷', '사진전에서 오래 머물고 싶은 작품은?', ['🔍', '빛과 표정이 생생하게 담긴 거리 사진'], ['🌀', '여러 이야기로 해석할 수 있는 낯선 사진']),
-    scene('취미', '🧶', '뜨개질을 배울 때 먼저 보고 싶은 것은?', ['👐', '손가락을 어떻게 움직이는지 보여주는 시범'], ['🧩', '고리들이 이어져 무늬가 되는 원리']),
-    scene('여행', '🏛️', '오래된 건물의 해설을 골라 들을 수 있어요. 어떤 내용부터?', ['🧱', '벽을 쌓은 재료와 실제 공사 과정'], ['🕰️', '건물이 그 시대 사람들에게 지녔던 의미'])
+    scene('요리', '처음 보는 국수를 맛봤어요. 친구에게 어떻게 설명할까요?', '면의 굵기와 국물 맛을 콕 집어 말한다.', '먹는 순간 떠오른 장면에 빗대어 말한다.'),
+    scene('문화생활', '사진전에서 오래 머물고 싶은 작품은?', '빛과 표정이 생생하게 담긴 거리 사진', '여러 이야기로 해석할 수 있는 낯선 사진'),
+    scene('취미', '뜨개질을 배울 때 먼저 보고 싶은 것은?', '손가락을 어떻게 움직이는지 보여주는 시범', '고리들이 이어져 무늬가 되는 원리'),
+    scene('여행', '오래된 건물의 해설을 골라 들을 수 있어요. 어떤 내용부터?', '벽을 쌓은 재료와 실제 공사 과정', '건물이 그 시대 사람들에게 지녔던 의미')
   ]},
   {first: 'N', scenes: [
-    scene('독서', '📚', '소설을 다 읽고 독서 모임에서 꺼내고 싶은 이야기는?', ['💭', '열린 결말 이후에 일어날 수 있는 일'], ['📌', '특히 기억에 남은 문장과 장면']),
-    scene('음악', '🎵', '새 노래를 듣고 먼저 귀에 남는 것은?', ['🌌', '가사가 떠올리게 한 풍경과 이야기'], ['🥁', '후렴의 박자와 선명한 악기 소리']),
-    scene('일상', '🏘️', '폐점한 가게 앞을 지나가요. 먼저 드는 생각은?', ['💡', '여기에 다른 공간이 생기면 어떨까?'], ['🏷️', '안내문에 어떤 사정이 적혀 있을까?']),
-    scene('게임', '🗺️', '게임 속 낡은 지도를 발견했어요. 더 궁금한 건?', ['🐉', '지도 한가운데 그려진 용의 숨은 의미'], ['📍', '표시된 보물 상자의 정확한 위치'])
+    scene('독서', '소설을 다 읽고 독서 모임에서 꺼내고 싶은 이야기는?', '열린 결말 이후에 일어날 수 있는 일', '특히 기억에 남은 문장과 장면'),
+    scene('음악', '새 노래를 듣고 먼저 귀에 남는 것은?', '가사가 떠올리게 한 풍경과 이야기', '후렴의 박자와 선명한 악기 소리'),
+    scene('일상', '폐점한 가게 앞을 지나가요. 먼저 드는 생각은?', '여기에 다른 공간이 생기면 어떨까?', '안내문에 어떤 사정이 적혀 있을까?'),
+    scene('게임', '게임 속 낡은 지도를 발견했어요. 더 궁금한 건?', '지도 한가운데 그려진 용의 숨은 의미', '표시된 보물 상자의 정확한 위치')
   ]},
   {first: 'S', scenes: [
-    scene('학교·직장', '🧑‍🏫', '새 개념이 잘 와닿지 않아요. 어떤 설명이 좋나요?', ['🧪', '실제로 적용한 사례를 하나씩 보여주는 설명'], ['🔗', '이미 아는 개념과 연결해 큰 그림을 보여주는 설명']),
-    scene('일상', '🪴', '화분에서 처음 보는 잎이 났어요. 더 눈길이 가는 건?', ['🍃', '잎맥의 모양과 어제보다 달라진 색'], ['🌱', '이 식물이 자라서 만들게 될 풍경']),
-    scene('취미', '🎞️', '주말을 기록할 사진첩의 첫 장을 고른다면?', ['📸', '그날 만난 사람과 장소가 잘 보이는 사진'], ['🎨', '주말 전체의 느낌을 비유한 그림']),
-    scene('문화생활', '🏺', '박물관의 오래된 그릇 앞에 섰어요. 궁금한 건?', ['🛠️', '남아 있는 자국으로 알 수 있는 제작 방법'], ['💭', '이 그릇을 쓰던 사람들의 생활 이야기'])
+    scene('학교·직장', '새 개념이 잘 와닿지 않아요. 어떤 설명이 좋나요?', '실제로 적용한 사례를 하나씩 보여주는 설명', '이미 아는 개념과 연결해 큰 그림을 보여주는 설명'),
+    scene('일상', '화분에서 처음 보는 잎이 났어요. 더 눈길이 가는 건?', '잎맥의 모양과 어제보다 달라진 색', '이 식물이 자라서 만들게 될 풍경'),
+    scene('취미', '주말을 기록할 사진첩의 첫 장을 고른다면?', '그날 만난 사람과 장소가 잘 보이는 사진', '주말 전체의 느낌을 비유한 그림'),
+    scene('문화생활', '박물관의 오래된 그릇 앞에 섰어요. 궁금한 건?', '남아 있는 자국으로 알 수 있는 제작 방법', '이 그릇을 쓰던 사람들의 생활 이야기')
   ]},
   {first: 'T', scenes: [
-    scene('친구 모임', '🍽️', '모임 장소가 두 곳으로 좁혀졌어요. 마지막 결정 기준은?', ['📊', '가격과 거리를 같은 기준으로 비교한다.'], ['💛', '각자가 편하게 느끼는 곳과 이유를 듣는다.']),
-    scene('학교·직장', '📋', '팀 아이디어 두 개 중 하나를 골라야 해요. 먼저 확인할 점은?', ['⚖️', '처음 정한 목표를 더 잘 충족하는지'], ['🫶', '팀원들이 어떤 점을 소중하게 생각하는지']),
-    scene('일상', '🏠', '룸메이트와 청소를 나눌 때 먼저 이야기하고 싶은 것은?', ['📏', '누구에게나 적용할 수 있는 분담 기준'], ['🤝', '각자 특히 힘들어하거나 편하게 느끼는 일']),
-    scene('게임', '🎲', '보드게임 규칙 해석이 갈렸어요. 우선 살피고 싶은 것은?', ['📘', '설명서와 이전 판에 적용한 기준'], ['👂', '각자 왜 억울하거나 난처하게 느끼는지'])
+    scene('친구 모임', '모임 장소가 두 곳으로 좁혀졌어요. 마지막 결정 기준은?', '가격과 거리를 같은 기준으로 비교한다.', '각자가 편하게 느끼는 곳과 이유를 듣는다.'),
+    scene('학교·직장', '팀 아이디어 두 개 중 하나를 골라야 해요. 먼저 확인할 점은?', '처음 정한 목표를 더 잘 충족하는지', '팀원들이 어떤 점을 소중하게 생각하는지'),
+    scene('일상', '룸메이트와 청소를 나눌 때 먼저 이야기하고 싶은 것은?', '누구에게나 적용할 수 있는 분담 기준', '각자 특히 힘들어하거나 편하게 느끼는 일'),
+    scene('게임', '보드게임 규칙 해석이 갈렸어요. 우선 살피고 싶은 것은?', '설명서와 이전 판에 적용한 기준', '각자 왜 억울하거나 난처하게 느끼는지')
   ]},
   {first: 'F', topic: 'support', scenes: [
-    scene('친구 모임', '😮‍💨', '친구가 “면접에서 완전히 얼었어”라고 해요. 첫마디는?', ['💛', '긴장 많이 됐겠다. 지금 기분은 어때?'], ['📝', '어느 질문에서 막혔어? 같이 대답을 생각해 보자.']),
-    scene('취미', '🏃', '친구가 첫 달리기 대회를 중간에 포기했대요. 어떻게 도울까요?', ['👂', '그 순간 어떤 마음이었는지 들어 준다.'], ['👟', '힘들었던 구간을 짚고 다음 연습 방법을 찾아본다.']),
-    scene('학교·직장', '💻', '동료가 작업 파일을 날려 당황했어요. 먼저 할 말은?', ['🫶', '많이 놀랐지? 내가 옆에 있을게.'], ['💾', '백업이 있는지 같이 확인해 볼까?']),
-    scene('일상', '🔑', '친구가 열쇠를 잃어버리고 자책해요. 내 첫 반응은?', ['🤲', '누구나 그럴 수 있다고 안심시킨다.'], ['🔎', '마지막으로 열쇠를 꺼낸 곳부터 함께 짚는다.'])
+    scene('친구 모임', '친구가 “면접에서 완전히 얼었어”라고 해요. 첫마디는?', '긴장 많이 됐겠다. 지금 기분은 어때?', '어느 질문에서 막혔어? 같이 대답을 생각해 보자.'),
+    scene('취미', '친구가 첫 달리기 대회를 중간에 포기했대요. 어떻게 도울까요?', '그 순간 어떤 마음이었는지 들어 준다.', '힘들었던 구간을 짚고 다음 연습 방법을 찾아본다.'),
+    scene('학교·직장', '동료가 작업 파일을 날려 당황했어요. 먼저 할 말은?', '많이 놀랐지? 내가 옆에 있을게.', '백업이 있는지 같이 확인해 볼까?'),
+    scene('일상', '친구가 열쇠를 잃어버리고 자책해요. 내 첫 반응은?', '누구나 그럴 수 있다고 안심시킨다.', '마지막으로 열쇠를 꺼낸 곳부터 함께 짚는다.')
   ]},
   {first: 'T', scenes: [
-    scene('취미', '🎸', '친구가 연주를 들려주고 의견을 물어요. 먼저 해 주고 싶은 말은?', ['🎚️', '리듬이 잘 맞은 곳과 조금 어긋난 부분'], ['💌', '연주에서 전해진 감정과 마음에 닿은 부분']),
-    scene('친구 모임', '🎁', '여럿이 선물 비용을 나누려 해요. 무엇을 우선할까요?', ['🧮', '처음 약속한 분담 원칙을 확인한다.'], ['💬', '사람마다 달랐던 부담과 사정을 듣는다.']),
-    scene('학교·직장', '🗓️', '모임 시간 변경 요청이 왔어요. 무엇부터 살펴볼까요?', ['⏱️', '마감과 다른 일정에 미칠 영향을 비교한다.'], ['👂', '변경을 부탁한 사람의 사정을 먼저 듣는다.']),
-    scene('동아리', '🏅', '동아리 상을 줄 기준을 정해요. 먼저 제안할 기준은?', ['📈', '모두에게 동일하게 적용할 성과 기준'], ['🤝', '서로를 위해 기울인 노력과 개인의 상황'])
+    scene('취미', '친구가 연주를 들려주고 의견을 물어요. 먼저 해 주고 싶은 말은?', '리듬이 잘 맞은 곳과 조금 어긋난 부분', '연주에서 전해진 감정과 마음에 닿은 부분'),
+    scene('친구 모임', '여럿이 선물 비용을 나누려 해요. 무엇을 우선할까요?', '처음 약속한 분담 원칙을 확인한다.', '사람마다 달랐던 부담과 사정을 듣는다.'),
+    scene('학교·직장', '모임 시간 변경 요청이 왔어요. 무엇부터 살펴볼까요?', '마감과 다른 일정에 미칠 영향을 비교한다.', '변경을 부탁한 사람의 사정을 먼저 듣는다.'),
+    scene('동아리', '동아리 상을 줄 기준을 정해요. 먼저 제안할 기준은?', '모두에게 동일하게 적용할 성과 기준', '서로를 위해 기울인 노력과 개인의 상황')
   ]},
   {first: 'J', scenes: [
-    scene('일상', '🛒', '마트에 가기 전, 어느 쪽이 편한가요?', ['📝', '오늘 살 것들을 목록으로 적는다.'], ['🧺', '매대를 보면서 먹고 싶은 것을 고른다.']),
-    scene('친구 모임', '🎉', '친구들과 주말에 만나기로 했어요. 어떤 약속이 좋나요?', ['📅', '시간과 장소를 미리 딱 정한 약속'], ['🌤️', '동네만 정하고 당일에 움직이는 약속']),
-    scene('요리', '🥘', '저녁을 직접 만들기로 했어요. 어떻게 시작하나요?', ['📋', '메뉴와 조리 순서를 정하고 재료를 꺼낸다.'], ['🥕', '냉장고를 열고 눈에 들어오는 재료로 시작한다.']),
-    scene('취미', '🎨', '그림을 한 장 그리려 해요. 손이 먼저 가는 쪽은?', ['✏️', '밑그림으로 배치를 잡아 둔다.'], ['🖍️', '마음에 드는 색을 칠하면서 구도를 찾아간다.'])
+    scene('일상', '마트에 가기 전, 어느 쪽이 편한가요?', '오늘 살 것들을 목록으로 적는다.', '매대를 보면서 먹고 싶은 것을 고른다.'),
+    scene('친구 모임', '친구들과 주말에 만나기로 했어요. 어떤 약속이 좋나요?', '시간과 장소를 미리 딱 정한 약속', '동네만 정하고 당일에 움직이는 약속'),
+    scene('요리', '저녁을 직접 만들기로 했어요. 어떻게 시작하나요?', '메뉴와 조리 순서를 정하고 재료를 꺼낸다.', '냉장고를 열고 눈에 들어오는 재료로 시작한다.'),
+    scene('취미', '그림을 한 장 그리려 해요. 손이 먼저 가는 쪽은?', '밑그림으로 배치를 잡아 둔다.', '마음에 드는 색을 칠하면서 구도를 찾아간다.')
   ]},
   {first: 'P', topic: 'detour', scenes: [
-    scene('문화생활', '🎟️', '보려던 영화가 매진이에요. 친구에게 어떤 제안을 할까요?', ['🚶', '밖을 걷다가 눈에 띄는 걸 해 보자.'], ['🕒', '다른 상영 시간을 확인하고 새 일정을 정하자.']),
-    scene('요리', '🥑', '함께 요리하다 주재료가 떨어진 걸 알았어요. 이제 어떻게 할까요?', ['🧑‍🍳', '있는 재료를 섞어 새로운 맛을 내 본다.'], ['📖', '다른 레시피를 골라 순서를 다시 정한다.']),
-    scene('여행', '🌦️', '소나기로 야외 일정이 취소됐어요. 나는?', ['🏪', '근처를 걷다가 끌리는 가게에 들른다.'], ['🗺️', '실내 장소를 찾아 남은 동선을 다시 짠다.']),
-    scene('게임', '🧩', '게임 진행 방식이 갑자기 바뀌었어요. 나는?', ['🎮', '일단 한 판 해 보며 새 방식을 익힌다.'], ['📋', '바뀐 규칙과 다음 전략을 정리하고 시작한다.'])
+    scene('문화생활', '보려던 영화가 매진이에요. 친구에게 어떤 제안을 할까요?', '밖을 걷다가 눈에 띄는 걸 해 보자.', '다른 상영 시간을 확인하고 새 일정을 정하자.'),
+    scene('요리', '함께 요리하다 주재료가 떨어진 걸 알았어요. 이제 어떻게 할까요?', '있는 재료를 섞어 새로운 맛을 내 본다.', '다른 레시피를 골라 순서를 다시 정한다.'),
+    scene('여행', '소나기로 야외 일정이 취소됐어요. 나는?', '근처를 걷다가 끌리는 가게에 들른다.', '실내 장소를 찾아 남은 동선을 다시 짠다.'),
+    scene('게임', '게임 진행 방식이 갑자기 바뀌었어요. 나는?', '일단 한 판 해 보며 새 방식을 익힌다.', '바뀐 규칙과 다음 전략을 정리하고 시작한다.')
   ]},
   {first: 'J', scenes: [
-    scene('학교·직장', '📂', '2주 뒤에 과제를 내야 해요. 어느 쪽이 마음 편한가요?', ['🗓️', '중간 목표와 마칠 날짜를 나눠 둔다.'], ['🧠', '여러 방향을 열어 두고 흐름에 맞춰 진행한다.']),
-    scene('집에서', '🪴', '방을 새롭게 꾸미려 해요. 어떤 방식이 나답나요?', ['📐', '먼저 치수를 재고 배치도를 그린다.'], ['🪑', '가구를 직접 옮겨 가며 마음에 드는 자리를 찾는다.']),
-    scene('여행', '🚉', '귀가 기차까지 두 시간이 남았어요. 편한 쪽은?', ['⌚', '들를 곳과 역에 돌아올 시간을 정한다.'], ['👣', '발길이 닿는 대로 역 근처를 돌아본다.']),
-    scene('독서', '📚', '긴 연휴에 책을 읽으려 해요. 내 방식은?', ['📑', '읽을 책을 몇 권 골라 순서를 정한다.'], ['📖', '그날 기분에 맞는 책을 집어 든다.'])
+    scene('학교·직장', '2주 뒤에 과제를 내야 해요. 어느 쪽이 마음 편한가요?', '중간 목표와 마칠 날짜를 나눠 둔다.', '여러 방향을 열어 두고 흐름에 맞춰 진행한다.'),
+    scene('집에서', '방을 새롭게 꾸미려 해요. 어떤 방식이 나답나요?', '먼저 치수를 재고 배치도를 그린다.', '가구를 직접 옮겨 가며 마음에 드는 자리를 찾는다.'),
+    scene('여행', '귀가 기차까지 두 시간이 남았어요. 편한 쪽은?', '들를 곳과 역에 돌아올 시간을 정한다.', '발길이 닿는 대로 역 근처를 돌아본다.'),
+    scene('독서', '긴 연휴에 책을 읽으려 해요. 내 방식은?', '읽을 책을 몇 권 골라 순서를 정한다.', '그날 기분에 맞는 책을 집어 든다.')
   ]}
 ];
 
 const summaries = {
-  ISTJ:'확인할 수 있는 사실과 약속을 바탕으로 꾸준히 일을 마무리하는 편이에요.',
-  ISFJ:'주변 사람의 작은 필요를 살피고 익숙한 일상을 안정적으로 돌보는 편이에요.',
-  INFJ:'혼자 깊이 생각하며 사람의 마음과 상황의 의미를 함께 살피는 편이에요.',
-  INTJ:'앞으로의 가능성을 가늠하고 목표에 이르는 길을 체계적으로 설계하는 편이에요.',
-  ISTP:'직접 관찰하고 시도하면서 상황에 맞는 실용적인 해법을 찾는 편이에요.',
-  ISFP:'자신의 감각과 가치에 귀를 기울이며 눈앞의 경험을 유연하게 즐기는 편이에요.',
-  INFP:'자신이 중요하게 여기는 가치에 따라 여러 가능성을 탐색하는 편이에요.',
-  INTP:'혼자 생각에 몰입해 원리를 파고들고 여러 설명을 비교하는 편이에요.',
-  ESTP:'사람들과 함께 움직이며 눈앞의 변화에 빠르게 반응하는 편이에요.',
-  ESFP:'주변 사람과 경험을 나누고 그 순간의 분위기에 자연스럽게 어울리는 편이에요.',
-  ENFP:'사람과 아이디어를 연결하며 새로운 가능성을 자유롭게 탐색하는 편이에요.',
-  ENTP:'대화하며 새로운 가설을 세우고 여러 관점에서 검토하는 편이에요.',
-  ESTJ:'구체적인 기준과 계획을 정해 여러 사람이 함께 움직이도록 돕는 편이에요.',
-  ESFJ:'사람들의 필요를 알아차리고 함께하는 일정을 세심하게 챙기는 편이에요.',
-  ENFJ:'사람들의 의견을 모아 함께 갈 방향을 구체화하는 편이에요.',
-  ENTJ:'목표를 정하고 아이디어를 실행 가능한 계획으로 바꾸는 편이에요.'
+  ISTJ:'맡은 일이 생기면 필요한 사실을 확인하고, 정한 순서대로 마무리하는 편이에요.',
+  ISFJ:'함께하는 사람이 무엇을 필요로 하는지 기억해 두었다가 조용히 챙겨요.',
+  INFJ:'대화가 끝난 뒤에도 상대의 말과 마음을 곱씹으며 앞으로의 방향을 생각해요.',
+  INTJ:'목표를 먼저 그려 보고, 거기에 닿으려면 무엇부터 해야 할지 정리해요.',
+  ISTP:'뜻밖의 문제가 생기면 직접 살펴보고 손에 잡히는 방법부터 시도해요.',
+  ISFP:'그날의 기분과 감각을 따라 움직이며 마음에 드는 순간을 충분히 즐겨요.',
+  INFP:'선택할 때는 내게 어떤 의미가 있는지 생각하고 여러 가능성을 열어 둬요.',
+  INTP:'궁금한 점이 생기면 혼자 파고들며 어떤 설명이 가장 잘 들어맞는지 살펴봐요.',
+  ESTP:'사람들과 일단 해 보면서 현장의 변화에 맞춰 다음 행동을 정해요.',
+  ESFP:'좋은 음악이나 맛있는 음식을 발견하면 곁에 있는 사람과 바로 나누고 싶어 해요.',
+  ENFP:'대화하다 떠오른 아이디어를 친구에게 건네고 함께 새 시도를 즐겨요.',
+  ENTP:'누군가 아이디어를 꺼내면 다른 각도에서 질문하며 가능성을 넓혀요.',
+  ESTJ:'여럿이 움직일 때 무엇을 언제까지 할지 정하면 마음이 편해져요.',
+  ESFJ:'모임을 준비할 때 각자의 사정을 듣고 모두가 편하게 참여할 방법을 찾아요.',
+  ENFJ:'사람들의 생각을 듣고 서로가 함께 해 보고 싶은 방향을 찾아요.',
+  ENTJ:'하고 싶은 일이 정해지면 필요한 순서와 역할을 짜서 실행에 옮겨요.'
 };
 
 const teamStyles = {
   explore: [
-    {name: '마음을 살피는 즉흥파', detail: '계획이 달라지면 그 자리에서 해 볼 일을 찾는 편이에요. 친구가 난처해할 때는 먼저 마음을 살피며 숨 돌릴 틈을 만들어 줘요.', tip: '다른 방법을 시도하기 전에 “우리 이렇게 해 볼까?”라고 물어보면 속도를 맞추기 좋아요.'},
-    {name: '바로 시도하는 해결사', detail: '상황이 달라져도 직접 시도하면서 방법을 찾아가는 편이에요. 친구에게 문제가 생기면 현장에서 쓸 수 있는 방법을 찾아 함께 움직여요.', tip: '해결책이 떠올라도 친구가 원하는 도움이 무엇인지 먼저 물으면 선택지를 좁히기 쉬워요.'}
+    {name: '마음을 살피는 즉흥파', detail: '상황에 맞춰 계획을 바꾸고, 친구가 난처할 때는 먼저 이야기를 들어 줘요.', tip: '다른 방법을 시도하기 전에 “우리 이렇게 해 볼까?”라고 물어보면 속도를 맞추기 좋아요.'},
+    {name: '바로 시도하는 해결사', detail: '뜻밖의 일이 생기면 그 자리에서 시도해 봐요. 친구가 막히면 함께 해 볼 방법부터 찾아요.', tip: '해결책이 떠올라도 친구가 원하는 도움이 무엇인지 먼저 물으면 선택지를 좁히기 쉬워요.'}
   ],
   arrange: [
-    {name: '마음까지 챙기는 일정 조율자', detail: '상황이 바뀌면 남은 시간을 살피고 다시 일정을 정해요. 곤란한 일이 생긴 친구에게는 먼저 안심할 말을 건네요.', tip: '새 일정을 짤 때 친구가 지금 쉬고 싶은지, 바로 움직이고 싶은지 들어 보세요.'},
-    {name: '대안을 준비하는 설계자', detail: '예상 밖의 일이 생기면 남은 일정부터 가다듬어요. 친구가 곤란할 때는 가능한 방법을 비교해서 다음 행동을 정하도록 도와요.', tip: '가능한 방법 두 가지를 제시하고 친구가 고르게 하면 둘 다 편한 계획을 세울 수 있어요.'}
+    {name: '마음까지 챙기는 일정 조율자', detail: '일정이 틀어지면 계획을 다시 짜요. 곤란해하는 친구에게는 먼저 안심할 말을 건네요.', tip: '새 일정을 짤 때 친구가 지금 쉬고 싶은지, 바로 움직이고 싶은지 들어 보세요.'},
+    {name: '대안을 준비하는 설계자', detail: '계획이 틀어지면 대안을 정리해요. 친구가 난처할 때도 다음 행동을 고를 수 있게 도와줘요.', tip: '가능한 방법 두 가지를 제시하고 친구가 고르게 하면 둘 다 편한 계획을 세울 수 있어요.'}
   ]
 };
 
@@ -311,9 +318,8 @@ function sceneAt(step) {
 }
 
 function renderQuestion() {
-  const {theme, icon, prompt, choices} = sceneAt(current);
+  const {theme, prompt, choices} = sceneAt(current);
   id('chapter').textContent = theme;
-  id('scene-icon').textContent = icon;
   id('count').textContent = `${current + 1} / ${questions.length} 문항`;
   const completed = answers.filter(answer => answer !== null).length;
   id('completed').textContent = `${completed}개 응답`;
@@ -321,9 +327,7 @@ function renderQuestion() {
   id('question').textContent = prompt;
   optionButtons.forEach((button, index) => {
     const choiceIndex = questions[current].order[index];
-    const [icon, label] = choices[choiceIndex];
-    button.querySelector('.choice-icon').textContent = icon;
-    button.querySelector('.choice-text').textContent = label;
+    button.textContent = choices[choiceIndex];
     button.setAttribute('aria-pressed', String(answers[current] === choiceIndex));
   });
   id('back').disabled = current === 0;
@@ -357,7 +361,11 @@ function renderTeamStyle() {
   id('style-detail').textContent = style.detail;
   id('style-evidence').replaceChildren(...[detour, support].map(step => {
     const item = document.createElement('li');
-    item.textContent = sceneAt(step).choices[answers[step]][1];
+    const scene = sceneAt(step);
+    const prompt = document.createElement('span');
+    prompt.className = 'evidence-prompt';
+    prompt.textContent = scene.prompt;
+    item.append(prompt, scene.choices[answers[step]]);
     return item;
   }));
   id('style-tip').textContent = style.tip;
@@ -365,24 +373,24 @@ function renderTeamStyle() {
 
 function renderCompanions(type) {
   const [energy, information, decision, pace] = type;
-  const sharedPace = pace === 'J' ? '시간과 장소를 미리 정하는' : '만나서 그날 할 일을 고르는';
+  const sharedPace = pace === 'J' ? '약속을 미리 잡는' : '만나서 할 일을 고르는';
   const perspective = information === 'S'
-    ? '내가 전시에서 발견한 세부 묘사를 친구가 새로운 이야기로 연결해 줄 수 있어요.'
-    : '내가 상상한 아이디어에 친구가 구체적인 사례를 더해 줄 수 있어요.';
+    ? '내가 찾아낸 세부 사항을 친구가 새로운 아이디어로 연결할 수 있어요.'
+    : '내가 떠올린 아이디어에 친구가 구체적인 사례를 더할 수 있어요.';
   const teamwork = decision === 'T'
-    ? '내가 시간과 비용을 비교하면 친구가 각자의 취향을 물어 모임 장소를 함께 고를 수 있어요.'
-    : '내가 각자의 바람을 듣고 친구가 비용과 거리를 살피면 모두가 편한 모임 장소를 찾기 좋아요.';
+    ? '모임을 잡을 때 나는 시간과 비용을, 친구는 각자의 취향을 살피면 장소를 고르기 쉬워요.'
+    : '나는 친구들이 원하는 분위기를 듣고, 상대는 비용과 거리를 따져 모임 장소를 고를 수 있어요.';
   const examples = [
     {type: energy + (information === 'S' ? 'N' : 'S') + decision + pace,
-      text: `둘 다 ${sharedPace} 약속이 편할 수 있어요. ${perspective}`},
+      reason: `${sharedPace} 친구`, text: perspective},
     {type: energy + information + (decision === 'T' ? 'F' : 'T') + pace,
-      text: teamwork}
+      reason: '결정할 때 서로 보완하는 친구', text: teamwork}
   ];
   id('companions').replaceChildren(...examples.map(example => {
     const card = document.createElement('div');
     card.className = 'match-card';
     const heading = document.createElement('h4');
-    heading.textContent = example.type;
+    heading.textContent = `${example.type} · ${example.reason}`;
     const note = document.createElement('p');
     note.textContent = example.text;
     card.append(heading, note);
@@ -392,6 +400,7 @@ function renderCompanions(type) {
 
 function renderResult() {
   const { type, shares } = calculate();
+  for (const details of id('result').querySelectorAll('details')) details.open = false;
   id('type').textContent = type;
   id('description').textContent = summaries[type];
   renderTeamStyle();
